@@ -25,7 +25,7 @@ case class Input(boxId: ADKey, contract: Either[CompiledContract, RegularContrac
 
 object Input {
 
-  def unsigned(boxId: ADKey, contract: RegularContract): Input = Input(boxId, Right(contract), List.empty)
+  def unsigned(boxId: ADKey, contract: Either[CompiledContract, RegularContract]): Input = Input(boxId, contract, List.empty)
 
   implicit val jsonEncoder: Encoder[Input] = (u: Input) => Map(
     "boxId" -> Algos.encode(u.boxId).asJson,
