@@ -28,10 +28,10 @@ object RegularContract {
       case OpenContract.typeId => Success(OpenContract)
       case HeightLockedContract.TypeId =>
         if (bytes.lengthCompare(5) == 0) Success(HeightLockedContract(Ints.fromByteArray(bytes.tail)))
-        else Failure(SerializationException(s"`HeightLockedContract` deserialization failed"))
+        else Failure(SerializationException)
       case PubKeyLockedContract.TypeId =>
         if (bytes.lengthCompare(PublicKey25519.Length + 1) == 0) Success(PubKeyLockedContract(PublicKey @@ bytes.tail))
-        else Failure(SerializationException(s"`AccountLockedContract` deserialization failed"))
+        else Failure(SerializationException)
     }
   }
 }
