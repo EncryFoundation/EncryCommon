@@ -1,6 +1,6 @@
 name := "encry-common"
 
-version := "0.1.0"
+version := "0.1.1"
 
 scalaVersion := "2.12.6"
 
@@ -39,3 +39,9 @@ pomExtra in ThisBuild :=
     <url>git@github.com:EncryFoundation/EncryCommon.git</url>
     <connection>scm:git:git@github.com:EncryFoundation/EncryCommon.git</connection>
   </scm>
+  <developers>
+    <developer>
+      <id>Oskin1</id>
+      <name>Ilya Oskin</name>
+    </developer>
+  </developers>
