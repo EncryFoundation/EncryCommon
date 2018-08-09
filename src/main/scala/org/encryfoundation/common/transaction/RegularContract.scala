@@ -7,7 +7,7 @@ import org.encryfoundation.prismlang.compiler.CompiledContract
 import org.encryfoundation.prismlang.core.Ast.{Expr, Ident}
 import org.encryfoundation.prismlang.core.{Ast, Types}
 import org.encryfoundation.prismlang.lib.predefined.signature.CheckSig
-import scorex.crypto.encode.Base16
+import scorex.util.encode.Base16
 import scorex.crypto.signatures.PublicKey
 import scala.util.{Failure, Success, Try}
 

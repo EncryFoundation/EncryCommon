@@ -3,7 +3,7 @@ package org.encryfoundation.common.transaction
 import org.encryfoundation.common.crypto.encoding.Base58Check
 import org.encryfoundation.common.transaction.EncryAddress.Address
 import org.scalatest.{Matchers, PropSpec}
-import scorex.crypto.encode.Base58
+import scorex.util.encode.Base58
 import scorex.crypto.signatures.{Curve25519, PublicKey}
 import scorex.utils.Random
 
@@ -12,11 +12,9 @@ class EncryAddressSpec extends PropSpec with Matchers {
   val pubKey: PublicKey = Curve25519.createKeyPair(Random.randomBytes())._2
   val validP2PK: Address = Base58Check.encode(Pay2PubKeyAddress.TypePrefix +: pubKey)
   val validP2CH: Address = Base58Check.encode(Pay2ContractHashAddress.TypePrefix +: PubKeyLockedContract(pubKey).contract.hash)
-
   val invalidP2PK: Address = Base58.encode(Random.randomBytes())
   val invalidP2CH: Address = Base58.encode(Random.randomBytes())
   val invalidP2CHPrefix: Address = Base58Check.encode(99.toByte +: Random.randomBytes())
-
   val p2pk: Pay2PubKeyAddress = Pay2PubKeyAddress(validP2PK)
   val p2ch: Pay2ContractHashAddress = Pay2ContractHashAddress(validP2CH)
 

@@ -1,6 +1,6 @@
 package org.encryfoundation.common.crypto.encoding
 
-import scorex.crypto.encode.Base58
+import scorex.util.encode.Base58
 import scorex.crypto.hash.Blake2b256
 
 import scala.util.{Failure, Success, Try}

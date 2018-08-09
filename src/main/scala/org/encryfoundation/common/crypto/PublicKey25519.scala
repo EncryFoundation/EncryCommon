@@ -4,7 +4,6 @@ import org.encryfoundation.common.Algos
 import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
 import org.encryfoundation.common.transaction.Pay2PubKeyAddress
 import scorex.crypto.signatures.{Curve25519, PublicKey}
-
 import scala.util.Try
 
 case class PublicKey25519(pubKeyBytes: PublicKey) extends BytesSerializable {

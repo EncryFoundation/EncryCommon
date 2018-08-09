@@ -1,7 +1,6 @@
 package org.encryfoundation.common.utils
 
 import java.nio.{ByteBuffer, ByteOrder}
-
 import com.google.common.primitives.Longs
 import org.bouncycastle.crypto.Digest
 import org.encryfoundation.common.Algos
