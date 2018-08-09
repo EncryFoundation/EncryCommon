@@ -1,9 +1,6 @@
 name := "encry-common"
-
-version := "0.1.5"
-
+version := "0.1.6"
 scalaVersion := "2.12.6"
-
 organization := "org.encry"
 
 resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
@@ -20,10 +17,7 @@ val apiDependencies = Seq(
 )
 
 libraryDependencies ++= Seq(
-  "com.google.guava" % "guava" % "21.+",
-  "org.scorexfoundation" %% "scrypto" % "2.1.+",
-  "org.encry" %% "prism" % "0.2.7",
-  "org.scalatest" %% "scalatest" % "3.0.3" % "test"
+  "org.encry" %% "prism" % "0.2.7"
 ) ++ apiDependencies
 
 licenses in ThisBuild := Seq("GNU GPL 3.0" -> url("https://github.com/EncryFoundation/EncryCommon/blob/master/LICENSE"))
