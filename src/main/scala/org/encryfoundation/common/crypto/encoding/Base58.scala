@@ -5,9 +5,9 @@ import scala.util.{Success, Try}
 
 object Base58 {
 
-  val Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+  val Alphabet: String = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
-  private val Base58Size = Alphabet.length
+  private val Base58Size: Int = Alphabet.length
 
   private def index(char: Char): Option[Int] = char match {
     case c if c <= '9' && c >= '1' => Some(c - '1')
