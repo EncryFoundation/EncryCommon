@@ -1,7 +1,6 @@
 package org.encryfoundation.common
 
 import java.nio.charset.Charset
-
 import org.encryfoundation.utils.encoding.Base16
 import scorex.crypto.authds.LeafData
 import scorex.crypto.authds.merkle.MerkleTree
