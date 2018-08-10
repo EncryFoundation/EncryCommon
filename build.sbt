@@ -1,6 +1,6 @@
 name := "encry-common"
 
-version := "0.2.0"
+version := "0.2.1"
 
 scalaVersion := "2.12.6"
 
@@ -22,7 +22,7 @@ val apiDependencies = Seq(
 libraryDependencies ++= Seq(
   "com.google.guava" % "guava" % "21.+",
   "org.scorexfoundation" %% "scrypto" % "2.1.+",
-  "org.encry" %% "prism" % "0.2.7",
+  "org.encry" %% "prism" % "0.3.0",
   "org.scalatest" %% "scalatest" % "3.0.3" % "test"
 ) ++ apiDependencies
 

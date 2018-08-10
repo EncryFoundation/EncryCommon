@@ -1,7 +1,8 @@
 package org.encryfoundation.common
 
 import java.nio.charset.Charset
-import org.encryfoundation.common.crypto.encoding.Base16
+
+import org.encryfoundation.utils.encoding.Base16
 import scorex.crypto.authds.LeafData
 import scorex.crypto.authds.merkle.MerkleTree
 import scorex.crypto.hash.{Blake2b256, Digest32}
