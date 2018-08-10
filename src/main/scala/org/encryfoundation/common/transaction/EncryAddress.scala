@@ -1,10 +1,9 @@
 package org.encryfoundation.common.transaction
 
-import org.encryfoundation.common.crypto.encoding.Base58Check
 import org.encryfoundation.common.transaction.EncryAddress.Address
 import org.encryfoundation.prismlang.compiler.CompiledContract.ContractHash
+import org.encryfoundation.utils.encoding.Base58Check
 import scorex.crypto.signatures.PublicKey
-
 import scala.util.Try
 
 sealed trait EncryAddress {
