@@ -20,7 +20,8 @@ val apiDependencies = Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.encry" %% "prism" % "0.8.0"
+  "org.encry" %% "prism" % "0.8.0",
+  "org.scalatest" %% "scalatest" % "3.0.3" % "test"
 ) ++ apiDependencies
 
 licenses in ThisBuild := Seq("GNU GPL 3.0" -> url("https://github.com/EncryFoundation/EncryCommon/blob/master/LICENSE"))
