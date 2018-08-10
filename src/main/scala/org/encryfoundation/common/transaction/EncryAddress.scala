@@ -4,7 +4,6 @@ import org.encryfoundation.common.crypto.encoding.Base58Check
 import org.encryfoundation.common.transaction.EncryAddress.Address
 import org.encryfoundation.prismlang.compiler.CompiledContract.ContractHash
 import scorex.crypto.signatures.PublicKey
-
 import scala.util.Try
 
 sealed trait EncryAddress {

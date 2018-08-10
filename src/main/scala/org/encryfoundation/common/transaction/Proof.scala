@@ -8,7 +8,6 @@ import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
 import org.encryfoundation.prismlang.codec.PCodec
 import org.encryfoundation.prismlang.core.wrapped.BoxedValue
 import scodec.bits.BitVector
-
 import scala.util.Try
 
 case class Proof(value: BoxedValue, tagOpt: Option[String]) extends BytesSerializable {
