@@ -5,7 +5,7 @@ import scala.util.{Success, Try}
 
 object Base58 {
 
-  private val Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+  val Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 
   private val Base58Size = Alphabet.length
 
