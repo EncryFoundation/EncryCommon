@@ -19,7 +19,7 @@ object Base58 {
     case _ => None
   }
 
-  def encode(input: Array[Byte]): String = {
+  def encode(input: Array[Byte]): String =
     if (input.isEmpty) ""
     else {
       val bi: BigInt = BigInt(1, input)
@@ -40,9 +40,8 @@ object Base58 {
 
       s.toString
     }
-  }
 
-  def decode(input: String): Try[Array[Byte]] = {
+  def decode(input: String): Try[Array[Byte]] =
     if (input.isEmpty) Success(Array.empty[Byte])
     else {
       def toBytes: String => Try[Array[Byte]] = (in: String) => Try {
@@ -60,7 +59,6 @@ object Base58 {
       if (in.isEmpty) Success(zeros)
       else toBytes(in).map { bytes => zeros ++ bytes }
     }
-  }
 
   case class InvalidCharacterException(char: Char, index: Int) extends IllegalArgumentException(
       s"An invalid character ($char)) at index $index")
