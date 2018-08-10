@@ -45,7 +45,7 @@ object Base58 {
     if (input.isEmpty) Success(Array.empty[Byte])
     else {
       def toBytes: String => Try[Array[Byte]] = (in: String) => Try {
-      val size: Int = in.length
+        val size: Int = in.length
         in.zipWithIndex.foldRight(BigInt(0)) { (c, bi) =>
           index(c._1).map { i =>
             bi + (BigInt(i) * BigInt(Base58Size).pow(size - 1 - c._2))
