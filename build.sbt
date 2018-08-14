@@ -1,15 +1,7 @@
 name := "encry-common"
-
 version := "0.8.0"
-
 scalaVersion := "2.12.6"
-
-organization := "org.encry"
-
-resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
-  "SonaType" at "https://oss.sonatype.org/content/groups/public",
-  "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/",
-  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
+organization := "org.encryfoundation"
 
 val circeVersion = "0.9.3"
 
@@ -23,6 +15,11 @@ libraryDependencies ++= Seq(
   "org.encry" %% "prism" % "0.8.0",
   "org.scalatest" %% "scalatest" % "3.0.3" % "test"
 ) ++ apiDependencies
+
+resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
+  "SonaType" at "https://oss.sonatype.org/content/groups/public",
+  "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/",
+  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
 
 licenses in ThisBuild := Seq("GNU GPL 3.0" -> url("https://github.com/EncryFoundation/EncryCommon/blob/master/LICENSE"))
 
@@ -40,9 +37,17 @@ pomExtra in ThisBuild :=
     <url>git@github.com:EncryFoundation/EncryCommon.git</url>
     <connection>scm:git:git@github.com:EncryFoundation/EncryCommon.git</connection>
   </scm>
-  <developers>
-    <developer>
-      <id>Oskin1</id>
-      <name>Ilya Oskin</name>
-    </developer>
-  </developers>
+    <developers>
+      <developer>
+        <id>kapinuss</id>
+        <name>Stanislav Kapinus</name>
+      </developer>
+      <developer>
+        <id>Oskin1</id>
+        <name>Ilya Oskin</name>
+      </developer>
+      <developer>
+        <id>Bromel777</id>
+        <name>Alexander Romanovskiy</name>
+      </developer>
+    </developers>
