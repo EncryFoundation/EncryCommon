@@ -1,20 +1,16 @@
 name := "encry-common"
-version := "0.8.0"
+version := "0.8.1"
 scalaVersion := "2.12.6"
 organization := "org.encryfoundation"
 
 val circeVersion = "0.9.3"
 
-val apiDependencies = Seq(
-  "io.circe" %% "circe-core" % circeVersion,
-  "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion,
-)
-
 libraryDependencies ++= Seq(
   "org.encry" %% "prism" % "0.8.0",
-  "org.scalatest" %% "scalatest" % "3.0.3" % "test"
-) ++ apiDependencies
+  "io.circe" %% "circe-core" % circeVersion,
+  "io.circe" %% "circe-generic" % circeVersion,
+  "io.circe" %% "circe-parser" % circeVersion
+)
 
 resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
   "SonaType" at "https://oss.sonatype.org/content/groups/public",
