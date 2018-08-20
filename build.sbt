@@ -1,7 +1,7 @@
 name := "encry-common"
 version := "0.8.1"
 scalaVersion := "2.12.6"
-organization := "org.encryfoundation"
+organization := "org.encry"
 
 val circeVersion = "0.9.3"
 
