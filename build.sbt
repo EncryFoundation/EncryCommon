@@ -1,12 +1,12 @@
 name := "encry-common"
-version := "0.8.1"
+version := "0.8.2"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
 val circeVersion = "0.9.3"
 
 libraryDependencies ++= Seq(
-  "org.encry" %% "prism" % "0.8.0",
+  "org.encry" %% "prism" % "0.8.2",
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
   "io.circe" %% "circe-parser" % circeVersion
