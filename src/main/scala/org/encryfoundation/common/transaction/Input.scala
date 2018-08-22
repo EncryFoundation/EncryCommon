@@ -6,7 +6,7 @@ import io.circe.{Decoder, Encoder, HCursor}
 import org.encryfoundation.common.{Algos, Constants}
 import org.encryfoundation.common.serialization.{BytesSerializable, SerializationException, Serializer}
 import org.encryfoundation.prismlang.compiler.{CompiledContract, CompiledContractSerializer}
-import scorex.crypto.authds.ADKey
+import org.encryfoundation.common.utils.TaggedTypes.ADKey
 
 import scala.util.Try
 
