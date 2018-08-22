@@ -1,5 +1,5 @@
 name := "encry-common"
-version := "0.8.2"
+version := "0.8.3"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
