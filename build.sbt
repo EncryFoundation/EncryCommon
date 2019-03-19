@@ -1,15 +1,16 @@
 name := "encry-common"
-version := "0.8.4"
+version := "0.8.5"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
 val circeVersion = "0.9.3"
 
 libraryDependencies ++= Seq(
-  "org.encry" %% "prism" % "0.8.4",
+  "org.encry" %% "prism" % "0.8.5",
   "io.circe" %% "circe-core" % circeVersion,
   "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion
+  "io.circe" %% "circe-parser" % circeVersion,
+  "org.scalatest" %% "scalatest" % "3.0.3" % Test
 )
 
 resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
@@ -33,10 +34,6 @@ pomExtra in ThisBuild :=
     <connection>scm:git:git@github.com:EncryFoundation/EncryCommon.git</connection>
   </scm>
     <developers>
-      <developer>
-        <id>kapinuss</id>
-        <name>Stanislav Kapinus</name>
-      </developer>
       <developer>
         <id>Oskin1</id>
         <name>Ilya Oskin</name>
