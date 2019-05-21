@@ -1,6 +1,6 @@
 package org.encryfoundation.common.utils
 
-import org.encryfoundation.common.utils.TaggedTypes.Height
+import org.encryfoundation.common.utils.TaggedTypes.{ADKey, Height}
 
 object Constants {
 
@@ -12,6 +12,8 @@ object Constants {
   val PayloadMaxSize: Int = 1000000
 
   val MaxDataLength: Int = 1000
+
+  val IntrinsicTokenId: ADKey = ADKey !@@ Algos.hash("intrinsic_token")
 
   object Chain {
 

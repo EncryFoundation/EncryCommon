@@ -3,7 +3,6 @@ package org.encryfoundation.common.crypto
 import com.google.common.primitives.Bytes
 import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
 import scorex.crypto.signatures.{Curve25519, PrivateKey, PublicKey}
-
 import scala.util.Try
 
 trait SecretWrapper extends BytesSerializable
