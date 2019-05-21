@@ -1,11 +1,11 @@
-package org.encryfoundation.common
+package org.encryfoundation.common.utils
 
 import java.nio.charset.Charset
+
 import org.encryfoundation.common.utils.TaggedTypes.LeafData
-import scorex.crypto.authds.{LeafData => ScorexLeaf}
-import scorex.crypto.authds.merkle.MerkleTree
 import scorex.crypto.encode.Base16
 import scorex.crypto.hash.{Blake2b256, Digest32}
+
 import scala.util.Try
 
 object Algos {

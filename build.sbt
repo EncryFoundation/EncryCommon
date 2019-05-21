@@ -1,16 +1,22 @@
 name := "encry-common"
-version := "0.8.6"
+version := "0.8.7"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
 val circeVersion = "0.9.3"
 
 libraryDependencies ++= Seq(
-  "org.encry" %% "prism" % "0.8.5",
-  "io.circe" %% "circe-core" % circeVersion,
-  "io.circe" %% "circe-generic" % circeVersion,
-  "io.circe" %% "circe-parser" % circeVersion,
-  "org.scalatest" %% "scalatest" % "3.0.3" % Test
+  "org.encry"            %% "prism"           % "0.8.5",
+  "io.circe"             %% "circe-core"      % circeVersion,
+  "io.circe"             %% "circe-generic"   % circeVersion,
+  "io.circe"             %% "circe-parser"    % circeVersion,
+  "org.scalatest"        %% "scalatest"       % "3.0.3"                                 % Test,
+  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
+  "commons-lang" % "commons-lang" % "2.6"
+)
+
+PB.targets in Compile := Seq(
+  scalapb.gen() -> (sourceManaged in Compile).value / "protobuf"
 )
 
 resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
