@@ -1,4 +1,4 @@
-package org.encryfoundation.common.transaction
+package org.encryfoundation.common.modifiers.mempool.transaction
 
 import com.google.common.primitives.Ints
 import org.encryfoundation.common.crypto.PublicKey25519
@@ -85,4 +85,5 @@ case class PubKeyLockedContract(pubKey: PublicKey) extends RegularContract {
     )
   )
 }
+
 object PubKeyLockedContract { val TypeId: Byte = 2 }

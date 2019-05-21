@@ -1,21 +1,19 @@
 package org.encryfoundation.common.modifiers.mempool.transaction
 
 import TransactionProto.TransactionProtoMessage
-import encry.modifiers.mempool.directive._
 import encry.modifiers.state.box.Box.Amount
 import encry.modifiers.state.box.EncryBaseBox
 import io.circe.{Decoder, HCursor}
 import io.circe.syntax._
-import org.encryfoundation.common.transaction._
 import org.encryfoundation.prismlang.core.Types
 import io.circe.Encoder
-import org.encryfoundation.common.transaction.{Input, Proof}
 import org.encryfoundation.prismlang.core.PConvertible
 import scorex.crypto.hash.Digest32
 import scala.util.Try
 import com.google.common.primitives.{Bytes, Ints, Longs, Shorts}
 import com.google.protobuf.ByteString
 import org.encryfoundation.common.modifiers.NodeViewModifier
+import org.encryfoundation.common.modifiers.mempool.directive.{Directive, DirectiveProtoSerializer, DirectiveSerializer}
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.{Algos, Constants, TaggedTypes}
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
@@ -28,7 +26,7 @@ case class Transaction(fee: Amount,
                        directives: IndexedSeq[Directive],
                        defaultProofOpt: Option[Proof]) extends NodeViewModifier with ModifierValidator with PConvertible {
 
-  override val modifierTypeId: ModifierTypeId = Transaction.ModifierTypeId
+  override val modifierTypeId: ModifierTypeId = Transaction.TransactionTypeId
 
   override type M = Transaction
 
@@ -63,43 +61,41 @@ case class Transaction(fee: Amount,
   override def hashCode(): Int = Ints.fromByteArray(messageToSign.take(4))
 
   def asVal: PValue = PValue(PObject(Map(
-    "inputs" -> PValue(inputs.map(_.boxId.toList), Types.PCollection(Types.PCollection.ofByte)),
-    "outputs" -> PValue(newBoxes.map(_.asPrism), Types.PCollection(Types.EncryBox)),
+    "inputs"        -> PValue(inputs.map(_.boxId.toList), Types.PCollection(Types.PCollection.ofByte)),
+    "outputs"       -> PValue(newBoxes.map(_.asPrism), Types.PCollection(Types.EncryBox)),
     "messageToSign" -> PValue(messageToSign, Types.PCollection.ofByte)
   ), tpe), tpe)
 }
 
 object Transaction {
 
-  val ModifierTypeId: ModifierTypeId = TaggedTypes.ModifierTypeId @@ 2.toByte
+  val TransactionTypeId: ModifierTypeId = TaggedTypes.ModifierTypeId @@ 2.toByte
 
   case class TransactionValidationException(s: String) extends Exception(s)
 
   implicit val jsonEncoder: Encoder[Transaction] = (tx: Transaction) => Map(
-    "id" -> Algos.encode(tx.id).asJson,
-    "fee" -> tx.fee.asJson,
-    "timestamp" -> tx.timestamp.asJson,
-    "inputs" -> tx.inputs.map(_.asJson).asJson,
-    "directives" -> tx.directives.map(_.asJson).asJson,
-    "outputs" -> tx.newBoxes.toSeq.map(_.asJson).asJson,
+    "id"              -> Algos.encode(tx.id).asJson,
+    "fee"             -> tx.fee.asJson,
+    "timestamp"       -> tx.timestamp.asJson,
+    "inputs"          -> tx.inputs.map(_.asJson).asJson,
+    "directives"      -> tx.directives.map(_.asJson).asJson,
+    "outputs"         -> tx.newBoxes.toSeq.map(_.asJson).asJson,
     "defaultProofOpt" -> tx.defaultProofOpt.map(_.asJson).asJson
   ).asJson
 
-  implicit val jsonDecoder: Decoder[Transaction] = (c: HCursor) => {
-    for {
-      fee <- c.downField("fee").as[Long]
-      timestamp <- c.downField("timestamp").as[Long]
-      inputs <- c.downField("inputs").as[IndexedSeq[Input]]
-      directives <- c.downField("directives").as[IndexedSeq[Directive]]
-      defaultProofOpt <- c.downField("defaultProofOpt").as[Option[Proof]]
-    } yield Transaction(
-      fee,
-      timestamp,
-      inputs,
-      directives,
-      defaultProofOpt
-    )
-  }
+  implicit val jsonDecoder: Decoder[Transaction] = (c: HCursor) => for {
+    fee             <- c.downField("fee").as[Long]
+    timestamp       <- c.downField("timestamp").as[Long]
+    inputs          <- c.downField("inputs").as[IndexedSeq[Input]]
+    directives      <- c.downField("directives").as[IndexedSeq[Directive]]
+    defaultProofOpt <- c.downField("defaultProofOpt").as[Option[Proof]]
+  } yield Transaction(
+    fee,
+    timestamp,
+    inputs,
+    directives,
+    defaultProofOpt
+  )
 }
 
 trait ProtoTransactionSerializer[T] {
@@ -186,8 +182,7 @@ case class UnsignedTransaction(fee: Amount,
                                inputs: IndexedSeq[Input],
                                directives: IndexedSeq[Directive]) {
 
-  val messageToSign: Array[Byte] =
-    UnsignedTransaction.bytesToSign(fee, timestamp, inputs, directives)
+  val messageToSign: Array[Byte] = UnsignedTransaction.bytesToSign(fee, timestamp, inputs, directives)
 
   def toSigned(proofs: IndexedSeq[Seq[Proof]], defaultProofOpt: Option[Proof]): Transaction = {
     val signedInputs: IndexedSeq[Input] = inputs.zipWithIndex.map { case (input, idx) =>

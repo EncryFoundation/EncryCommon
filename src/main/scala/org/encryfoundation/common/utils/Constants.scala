@@ -11,6 +11,8 @@ object Constants {
   // Maximum block payload size in bytes
   val PayloadMaxSize: Int = 1000000
 
+  val MaxDataLength: Int = 1000
+
   object Chain {
 
     val HashLength: Int = 32
