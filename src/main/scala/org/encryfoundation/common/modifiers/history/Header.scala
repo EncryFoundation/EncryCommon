@@ -5,8 +5,7 @@ import com.google.common.primitives.{Bytes, Ints, Longs}
 import com.google.protobuf.ByteString
 import org.bouncycastle.crypto.digests.Blake2bDigest
 import org.encryfoundation.common.crypto.equihash.{Equihash, EquihashSolution, EquihashSolutionsSerializer}
-import org.encryfoundation.common.modifiers.{PersistentModifier, ModifierWithDigest}
-import org.encryfoundation.common.modifiers.history.Block.{Height, Timestamp, Version}
+import org.encryfoundation.common.modifiers.{ModifierWithDigest, PersistentModifier}
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.TaggedTypes.{ADDigest, Difficulty, ModifierId, ModifierTypeId}
 import scorex.crypto.hash.Digest32
@@ -16,22 +15,20 @@ import scala.util.Try
 import Header._
 import org.encryfoundation.common.utils.{Algos, Constants}
 
-case class Header(version: Version,
+case class Header(version: Byte,
                   override val parentId: ModifierId,
                   adProofsRoot: Digest32,
                   stateRoot: ADDigest, // 32 bytes + 1 (tree height)
                   transactionsRoot: Digest32,
-                  timestamp: Timestamp,
-                  height: Height,
+                  timestamp: Long,
+                  height: Int,
                   nonce: Long,
                   difficulty: Difficulty,
                   equihashSolution: EquihashSolution) extends PersistentModifier {
 
   override type M = Header
 
-  override val modifierTypeId: ModifierTypeId = Header.modifierTypeId
-
-  def toHeaderProto: HeaderProtoMessage = HeaderProtoSerializer.toProto(this)
+  override val modifierTypeId: ModifierTypeId = Header.HeaderTypeId
 
   lazy val powHash: Digest32 = getPowHash(this)
 
@@ -42,16 +39,18 @@ case class Header(version: Version,
   lazy val isGenesis: Boolean = height == Constants.Chain.GenesisHeight
 
   lazy val payloadId: ModifierId =
-    ModifierWithDigest.computeId(Payload.modifierTypeId, id, transactionsRoot)
+    ModifierWithDigest.computeId(Payload.PayloadTypeId, id, transactionsRoot)
 
-  lazy val adProofsId: ModifierId = ModifierWithDigest.computeId(ADProofs.modifierTypeId, id, adProofsRoot)
+  lazy val adProofsId: ModifierId = ModifierWithDigest.computeId(ADProofs.ADProofsTypeId, id, adProofsRoot)
 
   lazy val ADProofAndPayloadIds: Seq[ModifierId] = Seq(adProofsId, payloadId)
 
+  def toHeaderProto: HeaderProtoMessage = HeaderProtoSerializer.toProto(this)
+
   def isRelated(mod: PersistentModifier): Boolean = mod match {
-    case p: ADProofs => adProofsRoot sameElements p.digest
-    case t: Payload => transactionsRoot sameElements t.digest
-    case _ => false
+    case p: ADProofs => adProofsRoot.sameElements(p.digest)
+    case t: Payload  => transactionsRoot.sameElements(t.digest)
+    case _           => false
   }
 
   override def serializer: Serializer[M] = HeaderSerializer
@@ -64,7 +63,7 @@ case class Header(version: Version,
 
 object Header {
 
-  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (101: Byte)
+  val HeaderTypeId: ModifierTypeId = ModifierTypeId @@ (101: Byte)
 
   lazy val GenesisParentId: ModifierId = ModifierId @@ Array.fill(Constants.DigestLength)(0: Byte)
 
@@ -83,31 +82,29 @@ object Header {
     "equihashSolution" -> h.equihashSolution.asJson
   ).asJson
 
-  implicit val jsonDecoder: Decoder[Header] = (c: HCursor) => {
-    for {
-      version          <- c.downField("version").as[Byte]
-      parentId         <- c.downField("parentId").as[String]
-      adProofsRoot     <- c.downField("adProofsRoot").as[String]
-      stateRoot        <- c.downField("stateRoot").as[String]
-      txRoot           <- c.downField("txRoot").as[String]
-      timestamp        <- c.downField("timestamp").as[Long]
-      height           <- c.downField("height").as[Int]
-      nonce            <- c.downField("nonce").as[Long]
-      difficulty       <- c.downField("difficulty").as[BigInt]
-      equihashSolution <- c.downField("equihashSolution").as[EquihashSolution]
-    } yield Header(
-      version,
-      ModifierId @@ Algos.decode(parentId).getOrElse(Array.emptyByteArray),
-      Digest32 @@ Algos.decode(adProofsRoot).getOrElse(Array.emptyByteArray),
-      ADDigest @@ Algos.decode(stateRoot).getOrElse(Array.emptyByteArray),
-      Digest32 @@ Algos.decode(txRoot).getOrElse(Array.emptyByteArray),
-      timestamp,
-      height,
-      nonce,
-      Difficulty @@ difficulty,
-      equihashSolution
-    )
-  }
+  implicit val jsonDecoder: Decoder[Header] = (c: HCursor) => for {
+    version          <- c.downField("version").as[Byte]
+    parentId         <- c.downField("parentId").as[String]
+    adProofsRoot     <- c.downField("adProofsRoot").as[String]
+    stateRoot        <- c.downField("stateRoot").as[String]
+    txRoot           <- c.downField("txRoot").as[String]
+    timestamp        <- c.downField("timestamp").as[Long]
+    height           <- c.downField("height").as[Int]
+    nonce            <- c.downField("nonce").as[Long]
+    difficulty       <- c.downField("difficulty").as[BigInt]
+    equihashSolution <- c.downField("equihashSolution").as[EquihashSolution]
+  } yield Header(
+    version,
+    ModifierId @@ Algos.decode(parentId).getOrElse(Array.emptyByteArray),
+    Digest32 @@ Algos.decode(adProofsRoot).getOrElse(Array.emptyByteArray),
+    ADDigest @@ Algos.decode(stateRoot).getOrElse(Array.emptyByteArray),
+    Digest32 @@ Algos.decode(txRoot).getOrElse(Array.emptyByteArray),
+    timestamp,
+    height,
+    nonce,
+    Difficulty @@ difficulty,
+    equihashSolution
+  )
 
   def getPowHash(header: Header): Digest32 = {
     val digest: Blake2bDigest = new Blake2bDigest(256)
@@ -188,7 +185,7 @@ object HeaderSerializer extends Serializer[Header] {
     )
 
   override def parseBytes(bytes: Array[Byte]): Try[Header] = Try {
-    val version: Version = bytes.head
+    val version: Byte = bytes.head
     val parentId: ModifierId = ModifierId @@ bytes.slice(1, 33)
     val adProofsRoot: Digest32 = Digest32 @@ bytes.slice(33, 65)
     val stateRoot: ADDigest = ADDigest @@ bytes.slice(65, 98) // 32 bytes + 1 (tree height)

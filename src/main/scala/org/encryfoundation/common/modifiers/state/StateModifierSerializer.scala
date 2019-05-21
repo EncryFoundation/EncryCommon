@@ -1,4 +1,4 @@
-package encry.modifiers.state
+package org.encryfoundation.common.modifiers.state
 
 import encry.modifiers.state.box._
 import scala.util.{Failure, Try}

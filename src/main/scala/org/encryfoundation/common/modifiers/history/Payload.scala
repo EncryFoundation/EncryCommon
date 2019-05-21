@@ -3,60 +3,54 @@ package org.encryfoundation.common.modifiers.history
 import PayloadProto.PayloadProtoMessage
 import com.google.common.primitives.{Bytes, Ints}
 import com.google.protobuf.ByteString
-import encry.modifiers.state.box.EncryProposition
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
 import org.apache.commons.lang.ArrayUtils
 import org.encryfoundation.common.modifiers.mempool.transaction.{Transaction, TransactionProtoSerializer, TransactionSerializer}
-import org.encryfoundation.common.modifiers.{PersistentModifier, ModifierWithDigest, TransactionsCarryingPersistentNodeViewModifier}
+import org.encryfoundation.common.modifiers.{PersistentModifier, ModifierWithDigest}
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.common.utils.TaggedTypes.{LeafData, ModifierId, ModifierTypeId}
 import scorex.crypto.hash.Digest32
-
 import scala.util.{Success, Try}
 
-case class Payload(override val headerId: ModifierId, txs: Seq[Transaction])
-  extends TransactionsCarryingPersistentNodeViewModifier[EncryProposition, Transaction]
-    with PersistentModifier
-    with ModifierWithDigest {
+case class Payload(override val headerId: ModifierId,
+                   txs: Seq[Transaction]) extends PersistentModifier with ModifierWithDigest {
 
   assert(txs.nonEmpty, "Block should contain at least 1 coinbase-like transaction")
 
-  def toProtoPayload: PayloadProtoMessage = PayloadProtoSerializer.toProto(this)
-
-  override val modifierTypeId: ModifierTypeId = Payload.modifierTypeId
-
   override type M = Payload
 
-  override val transactions: Seq[Transaction] = txs
+  override val modifierTypeId: ModifierTypeId = Payload.PayloadTypeId
 
   override lazy val digest: Digest32 = Payload.rootHash(txs.map(_.id))
 
   override def serializer: Serializer[Payload] = PayloadSerializer
 
+  def toProtoPayload: PayloadProtoMessage = PayloadProtoSerializer.toProto(this)
+
   override def toString: String = s"Payload(headerId=${Algos.encode(headerId)}," +
-    s" txsQty=${transactions.size}, id = ${Algos.encode(id)})"
+    s" txsQty=${txs.size}, id = ${Algos.encode(id)})"
+
+  override def parentId: ModifierId = null
 }
 
 object Payload {
 
-  implicit val jsonEncoder: Encoder[Payload] = (bp: Payload) => Map(
-    "headerId"      -> Algos.encode(bp.headerId).asJson,
-    "transactions"  -> bp.txs.map(_.asJson).asJson
+  implicit val jsonEncoder: Encoder[Payload] = (p: Payload) => Map(
+    "headerId"     -> Algos.encode(p.headerId).asJson,
+    "transactions" -> p.txs.map(_.asJson).asJson
   ).asJson
 
-  implicit val jsonDecoder: Decoder[Payload] = (c: HCursor) => {
-    for {
-      headerId      <- c.downField("headerId").as[String]
-      transactions  <- c.downField("transactions").as[Seq[Transaction]]
-    } yield Payload(
-      ModifierId @@ Algos.decode(headerId).getOrElse(Array.emptyByteArray),
-      transactions
-    )
-  }
+  implicit val jsonDecoder: Decoder[Payload] = (c: HCursor) => for {
+    headerId     <- c.downField("headerId").as[String]
+    transactions <- c.downField("transactions").as[Seq[Transaction]]
+  } yield Payload(
+    ModifierId @@ Algos.decode(headerId).getOrElse(Array.emptyByteArray),
+    transactions
+  )
 
-  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (102: Byte)
+  val PayloadTypeId: ModifierTypeId = ModifierTypeId @@ (102: Byte)
 
   def rootHash(ids: Seq[ModifierId]): Digest32 = Algos.merkleTreeRoot(LeafData !@@ ids)
 
@@ -66,7 +60,7 @@ object PayloadProtoSerializer {
 
   def toProto(payload: Payload): PayloadProtoMessage = PayloadProtoMessage()
     .withHeaderId(ByteString.copyFrom(payload.headerId))
-    .withTxs(payload.transactions.map(_.toTransactionProto))
+    .withTxs(payload.txs.map(_.toTransactionProto))
 
   def fromProto(payloadProtoMessage: PayloadProtoMessage): Try[Payload] = Try {
     val transactions: Seq[Transaction] = payloadProtoMessage.txs.map(tx => TransactionProtoSerializer.fromProto(tx))
@@ -80,8 +74,8 @@ object PayloadSerializer extends Serializer[Payload] {
   override def toBytes(obj: Payload): Array[Byte] =
     Bytes.concat(
       obj.headerId,
-      Ints.toByteArray(obj.transactions.size),
-      obj.transactions.map(tx => ArrayUtils.addAll(Ints.toByteArray(tx.bytes.length), tx.bytes))
+      Ints.toByteArray(obj.txs.size),
+      obj.txs.map(tx => ArrayUtils.addAll(Ints.toByteArray(tx.bytes.length), tx.bytes))
         .foldLeft(Array.emptyByteArray) { case (acc, txBytes) => ArrayUtils.addAll(acc, txBytes) }
     )
 
