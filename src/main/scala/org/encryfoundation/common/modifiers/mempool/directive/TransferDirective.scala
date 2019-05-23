@@ -4,13 +4,13 @@ import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage
 import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage.{ADKeyProto, TransferDirectiveProtoMessage}
 import com.google.common.primitives.{Bytes, Ints, Longs}
 import com.google.protobuf.ByteString
-import encry.modifiers.state.box.Box.Amount
-import encry.modifiers.state.box.{AssetBox, EncryBaseBox, EncryProposition}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
 import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
 import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress
 import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress.Address
+import org.encryfoundation.common.modifiers.state.box.Box.Amount
+import org.encryfoundation.common.modifiers.state.box.{AssetBox, EncryBaseBox, EncryProposition}
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.{Algos, Constants, Utils}
 import org.encryfoundation.common.utils.TaggedTypes.ADKey

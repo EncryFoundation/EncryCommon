@@ -12,7 +12,7 @@ libraryDependencies ++= Seq(
   "io.circe"             %% "circe-parser"    % circeVersion,
   "org.scalatest"        %% "scalatest"       % "3.0.3"                                 % Test,
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
-  "commons-lang" % "commons-lang" % "2.6"
+  "commons-lang"         % "commons-lang"     % "2.6"
 )
 
 PB.targets in Compile := Seq(

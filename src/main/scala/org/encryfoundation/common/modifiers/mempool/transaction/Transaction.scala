@@ -1,8 +1,6 @@
 package org.encryfoundation.common.modifiers.mempool.transaction
 
 import TransactionProto.TransactionProtoMessage
-import encry.modifiers.state.box.Box.Amount
-import encry.modifiers.state.box.EncryBaseBox
 import io.circe.{Decoder, HCursor}
 import io.circe.syntax._
 import org.encryfoundation.prismlang.core.Types
@@ -14,6 +12,8 @@ import com.google.common.primitives.{Bytes, Ints, Longs, Shorts}
 import com.google.protobuf.ByteString
 import org.encryfoundation.common.modifiers.NodeViewModifier
 import org.encryfoundation.common.modifiers.mempool.directive.{Directive, DirectiveProtoSerializer, DirectiveSerializer}
+import org.encryfoundation.common.modifiers.state.box.Box.Amount
+import org.encryfoundation.common.modifiers.state.box.EncryBaseBox
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.{Algos, Constants, TaggedTypes}
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}

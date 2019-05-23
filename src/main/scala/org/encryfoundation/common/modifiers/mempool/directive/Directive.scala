@@ -1,9 +1,9 @@
 package org.encryfoundation.common.modifiers.mempool.directive
 
 import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage
-import encry.modifiers.state.box.EncryBaseBox
 import io.circe._
 import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
+import org.encryfoundation.common.modifiers.state.box.EncryBaseBox
 import org.encryfoundation.common.serialization.BytesSerializable
 import scorex.crypto.hash.Digest32
 

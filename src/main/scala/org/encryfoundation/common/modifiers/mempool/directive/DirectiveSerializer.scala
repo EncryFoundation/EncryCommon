@@ -13,12 +13,13 @@ trait ProtoDirectiveSerializer[T] {
 }
 
 object DirectiveProtoSerializer {
+
   def fromProto(message: DirectiveProtoMessage): Option[Directive] = message.directiveProto match {
-    case DirectiveProto.AssetIssuingDirectiveProto(_) => AssetIssuingDirectiveProtoSerializer.fromProto(message)
-    case DirectiveProto.DataDirectiveProto(_) => DataDirectiveProtoSerializer.fromProto(message)
-    case DirectiveProto.TransferDirectiveProto(_) => TransferDirectiveProtoSerializer.fromProto(message)
+    case DirectiveProto.AssetIssuingDirectiveProto(_)  => AssetIssuingDirectiveProtoSerializer.fromProto(message)
+    case DirectiveProto.DataDirectiveProto(_)          => DataDirectiveProtoSerializer.fromProto(message)
+    case DirectiveProto.TransferDirectiveProto(_)      => TransferDirectiveProtoSerializer.fromProto(message)
     case DirectiveProto.ScriptedAssetDirectiveProto(_) => ScriptedAssetDirectiveProtoSerializer.fromProto(message)
-    case DirectiveProto.Empty => None
+    case DirectiveProto.Empty                          => None
   }
 }
 
