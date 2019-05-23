@@ -1,4 +1,4 @@
-package encry.modifiers.state.box
+package org.encryfoundation.common.modifiers.state.box
 
 import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.common.utils.TaggedTypes.ADKey

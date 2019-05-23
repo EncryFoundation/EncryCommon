@@ -1,6 +1,6 @@
-package encry.modifiers.state.box
+package org.encryfoundation.common.modifiers.state.box
 
-import encry.modifiers.state.box.Box.Amount
+import org.encryfoundation.common.modifiers.state.box.Box.Amount
 
 trait MonetaryBox extends EncryBaseBox {
 

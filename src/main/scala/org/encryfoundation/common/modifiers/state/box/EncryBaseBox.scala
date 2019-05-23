@@ -1,14 +1,13 @@
-package encry.modifiers.state.box
+package org.encryfoundation.common.modifiers.state.box
 
 import BoxesProto.BoxProtoMessage
 import com.google.common.primitives.Longs
-import encry.modifiers.state.box.EncryBox.BxTypeId
 import io.circe.{Decoder, DecodingFailure, Encoder}
+import org.encryfoundation.common.modifiers.state.box.EncryBox.BxTypeId
 import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
 import org.encryfoundation.prismlang.core.{PConvertible, Types}
-
 import scala.util.Try
 
 trait EncryBaseBox extends Box[EncryProposition] with PConvertible {

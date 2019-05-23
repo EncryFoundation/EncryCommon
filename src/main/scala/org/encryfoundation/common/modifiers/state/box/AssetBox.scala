@@ -4,12 +4,11 @@ import BoxesProto.BoxProtoMessage
 import BoxesProto.BoxProtoMessage.{AssetBoxProtoMessage, TokenIdProto}
 import com.google.common.primitives.{Bytes, Longs, Shorts}
 import com.google.protobuf.ByteString
-import encry.modifiers.state.box.Box.Amount
-import encry.modifiers.state.box.EncryBox.BxTypeId
-import encry.modifiers.state.box._
-import encry.modifiers.state.box.TokenIssuingBox.TokenId
 import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
+import org.encryfoundation.common.modifiers.state.box.Box.Amount
+import org.encryfoundation.common.modifiers.state.box.EncryBox.BxTypeId
+import org.encryfoundation.common.modifiers.state.box.TokenIssuingBox.TokenId
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.{Algos, Constants}
 import org.encryfoundation.prismlang.core.Types
@@ -40,7 +39,6 @@ case class AssetBox(override val proposition: EncryProposition,
     ), tpe)
 
   override def serializeToProto: BoxProtoMessage = AssetBoxProtoSerializer.toProto(this)
-
 }
 
 object AssetBox {

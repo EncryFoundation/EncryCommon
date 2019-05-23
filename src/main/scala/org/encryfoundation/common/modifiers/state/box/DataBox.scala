@@ -1,17 +1,16 @@
-package encry.modifiers.state.box
+package org.encryfoundation.common.modifiers.state.box
 
 import BoxesProto.BoxProtoMessage
-import BoxesProto.BoxProtoMessage.{AssetBoxProtoMessage, DataBoxProtoMessage, TokenIdProto}
+import BoxesProto.BoxProtoMessage.DataBoxProtoMessage
 import com.google.common.primitives.{Bytes, Longs, Shorts}
 import com.google.protobuf.ByteString
-import encry.modifiers.state.box.EncryBox.BxTypeId
 import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
+import org.encryfoundation.common.modifiers.state.box.EncryBox.BxTypeId
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.prismlang.core.Types
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
-
 import scala.util.Try
 
 /** Stores arbitrary data in EncryTL binary format. */
@@ -30,10 +29,7 @@ case class DataBox(override val proposition: EncryProposition,
 
   override def asVal: PValue = PValue(asPrism, Types.DataBox)
 
-  override def asPrism: PObject =
-    PObject(baseFields ++ Map(
-      "data" -> PValue(data, Types.PCollection.ofByte)
-    ), tpe)
+  override def asPrism: PObject = PObject(baseFields ++ Map("data" -> PValue(data, Types.PCollection.ofByte)), tpe)
 
   override def serializeToProto: BoxProtoMessage = DataBoxProtoSerializer.toProto(this)
 }
@@ -43,24 +39,22 @@ object DataBox {
   val TypeId: BxTypeId = 4.toByte
 
   implicit val jsonEncoder: Encoder[DataBox] = (bx: DataBox) => Map(
-    "type" -> TypeId.asJson,
-    "id" -> Algos.encode(bx.id).asJson,
+    "type"        -> TypeId.asJson,
+    "id"          -> Algos.encode(bx.id).asJson,
     "proposition" -> bx.proposition.asJson,
-    "nonce" -> bx.nonce.asJson,
-    "data" -> Algos.encode(bx.data).asJson,
+    "nonce"       -> bx.nonce.asJson,
+    "data"        -> Algos.encode(bx.data).asJson,
   ).asJson
 
-  implicit val jsonDecoder: Decoder[DataBox] = (c: HCursor) => {
-    for {
-      proposition <- c.downField("proposition").as[EncryProposition]
-      nonce <- c.downField("nonce").as[Long]
-      data <- c.downField("data").as[Array[Byte]]
-    } yield DataBox(
-      proposition,
-      nonce,
-      data
-    )
-  }
+  implicit val jsonDecoder: Decoder[DataBox] = (c: HCursor) => for {
+    proposition <- c.downField("proposition").as[EncryProposition]
+    nonce       <- c.downField("nonce").as[Long]
+    data        <- c.downField("data").as[Array[Byte]]
+  } yield DataBox(
+    proposition,
+    nonce,
+    data
+  )
 }
 
 object DataBoxProtoSerializer extends BaseBoxProtoSerialize[DataBox] {

@@ -1,4 +1,4 @@
-package encry.modifiers.state.box
+package org.encryfoundation.common.modifiers.state.box
 
 trait EncryBox[P <: EncryProposition] extends EncryBaseBox {
 
