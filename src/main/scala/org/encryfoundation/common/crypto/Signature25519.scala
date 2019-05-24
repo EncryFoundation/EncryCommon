@@ -3,7 +3,7 @@ package org.encryfoundation.common.crypto
 import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
-import org.encryfoundation.common.Algos
+import org.encryfoundation.common.utils.Algos
 import scorex.crypto.signatures.{Curve25519, Signature}
 import scala.util.Try
 

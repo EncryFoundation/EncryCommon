@@ -1,13 +1,12 @@
-package org.encryfoundation.common.transaction
+package org.encryfoundation.common.modifiers.mempool.transaction
 
 import com.google.common.primitives.{Ints, Shorts}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
-import org.encryfoundation.common.{Algos, Constants}
 import org.encryfoundation.common.serialization.{BytesSerializable, SerializationException, Serializer}
+import org.encryfoundation.common.utils.{Algos, Constants}
 import org.encryfoundation.prismlang.compiler.{CompiledContract, CompiledContractSerializer}
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
-
 import scala.util.Try
 
 case class Input(boxId: ADKey, contract: Either[CompiledContract, RegularContract], proofs: List[Proof]) extends BytesSerializable {
@@ -28,21 +27,19 @@ object Input {
   def unsigned(boxId: ADKey, contract: Either[CompiledContract, RegularContract]): Input = Input(boxId, contract, List.empty)
 
   implicit val jsonEncoder: Encoder[Input] = (u: Input) => Map(
-    "boxId" -> Algos.encode(u.boxId).asJson,
+    "boxId"    -> Algos.encode(u.boxId).asJson,
     "contract" -> Algos.encode(InputSerializer.encodeEitherCompiledOrRegular(u.contract)).asJson,
-    "proofs" -> u.proofs.map(_.asJson).asJson
+    "proofs"   -> u.proofs.map(_.asJson).asJson
   ).asJson
 
-  implicit val jsonDecoder: Decoder[Input] = (c: HCursor) => {
-    for {
-      boxId <- c.downField("boxId").as[String]
-      contractBytes <- c.downField("contract").as[String]
-      proofs <- c.downField("proofs").as[List[Proof]]
-    } yield Algos.decode(contractBytes)
-      .flatMap(InputSerializer.decodeEitherCompiledOrRegular)
-      .flatMap(contract => Algos.decode(boxId).map(id => Input(ADKey @@ id, contract, proofs)))
-      .getOrElse(throw new Exception("Decoding failed"))
-  }
+  implicit val jsonDecoder: Decoder[Input] = (c: HCursor) => for {
+    boxId         <- c.downField("boxId").as[String]
+    contractBytes <- c.downField("contract").as[String]
+    proofs        <- c.downField("proofs").as[List[Proof]]
+  } yield Algos.decode(contractBytes)
+    .flatMap(InputSerializer.decodeEitherCompiledOrRegular)
+    .flatMap(contract => Algos.decode(boxId).map(id => Input(ADKey @@ id, contract, proofs)))
+    .getOrElse(throw new Exception("Decoding failed"))
 }
 
 object InputSerializer extends Serializer[Input] {

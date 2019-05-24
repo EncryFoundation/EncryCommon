@@ -1,8 +1,8 @@
 package org.encryfoundation.common.crypto
 
-import org.encryfoundation.common.Algos
+import org.encryfoundation.common.modifiers.mempool.transaction.Pay2PubKeyAddress
 import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
-import org.encryfoundation.common.transaction.Pay2PubKeyAddress
+import org.encryfoundation.common.utils.Algos
 import scorex.crypto.signatures.{Curve25519, PublicKey}
 import scala.util.Try
 

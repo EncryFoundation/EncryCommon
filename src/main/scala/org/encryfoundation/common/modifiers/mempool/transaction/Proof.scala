@@ -1,10 +1,10 @@
-package org.encryfoundation.common.transaction
+package org.encryfoundation.common.modifiers.mempool.transaction
 
 import com.google.common.primitives.{Bytes, Shorts}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
-import org.encryfoundation.common.Algos
 import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
+import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.prismlang.codec.PCodec
 import org.encryfoundation.prismlang.core.wrapped.BoxedValue
 import scodec.bits.BitVector
@@ -26,16 +26,12 @@ object Proof {
     "tag" -> p.tagOpt.map(_.asJson).asJson
   ).asJson
 
-  implicit val jsonDecoder: Decoder[Proof] = (c: HCursor) => {
-    for {
-      serializedValue <- c.downField("serializedValue").as[String]
-      tag <- c.downField("tag").as[Option[String]]
-    } yield {
-      Algos.decode(serializedValue)
-        .map(bytes => PCodec.boxedValCodec.decode(BitVector(bytes)).require.value)
-        .map(value => Proof(value, tag)).getOrElse(throw new Exception("Decoding failed"))
-    }
-  }
+  implicit val jsonDecoder: Decoder[Proof] = (c: HCursor) => for {
+    serializedValue <- c.downField("serializedValue").as[String]
+    tag             <- c.downField("tag").as[Option[String]]
+  } yield Algos.decode(serializedValue)
+    .map(bytes => PCodec.boxedValCodec.decode(BitVector(bytes)).require.value)
+    .map(value => Proof(value, tag)).getOrElse(throw new Exception("Decoding failed"))
 }
 
 object ProofSerializer extends Serializer[Proof] {
