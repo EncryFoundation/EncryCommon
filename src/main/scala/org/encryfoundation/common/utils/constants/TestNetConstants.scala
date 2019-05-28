@@ -5,7 +5,7 @@ import org.encryfoundation.common.utils.TaggedTypes.{ADKey, Difficulty, Height}
 import scala.concurrent.duration._
 import scala.concurrent.duration.FiniteDuration
 
-object TestNetConstants extends Constants {
+case object TestNetConstants extends Constants {
 
   val DigestLength: Int = 32
 
@@ -29,45 +29,39 @@ object TestNetConstants extends Constants {
 
   val IntrinsicTokenId: ADKey = ADKey !@@ Algos.hash("intrinsic_token")
 
-  object TestNetChainConstants extends ChainConstants {
+  val ConsensusScheme: String = "equihash"
 
-    val ConsensusScheme: String = "equihash"
+  val HashLength: Int = 32
 
-    val HashLength: Int = 32
+  val MaxTarget: BigInt = BigInt(1, Array.fill(HashLength)((-1).toByte))
 
-    val MaxTarget: BigInt = BigInt(1, Array.fill(HashLength)((-1).toByte))
+  val InitialDifficulty: Difficulty = Difficulty @@ BigInt(1)
 
-    val InitialDifficulty: Difficulty = Difficulty @@ BigInt(1)
+  val Version: Byte = 0: Byte
 
-    val Version: Byte = 0: Byte
+  val InitialEmissionAmount: Int = 1000000000
 
-    val InitialEmissionAmount: Int = 1000000000
+  val EmissionDecay = 0.05
 
-    val EmissionDecay = 0.05
+  val EmissionEpochLength: Int = 5040
 
-    val EmissionEpochLength: Int = 5040
+  val DesiredBlockInterval: FiniteDuration = 120.seconds
 
-    val DesiredBlockInterval: FiniteDuration = 120.seconds
+  val NewHeaderTimeMultiplier: Int = 5
 
-    val NewHeaderTimeMultiplier: Int = 5
+  val RetargetingEpochsQty: Int = 4
 
-    val RetargetingEpochsQty: Int = 4
+  val EpochLength: Int = 100
 
-    val EpochLength: Int = 100
+  val GenesisHeight: Height = Height @@ 0
 
-    val GenesisHeight: Height = Height @@ 0
+  val PreGenesisHeight: Height = Height @@ (GenesisHeight - 1)
 
-    val PreGenesisHeight: Height = Height @@ (GenesisHeight - 1)
+  val MaxRollbackDepth: Int = 100
 
-    val MaxRollbackDepth: Int = 100
+  val MaxTimeDrift: Long = 2.hours.toMillis
 
-    val MaxTimeDrift: Long = 2.hours.toMillis
-  }
+  val n: Char = 96
 
-  object TestNetEquihash extends EquiHashConstants {
-
-    val n: Char = 96
-
-    val k: Char = 5
-  }
+  val k: Char = 5
 }

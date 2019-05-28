@@ -37,7 +37,7 @@ case class Header(version: Byte,
 
   override lazy val id: ModifierId = ModifierId @@ powHash.untag(Digest32)
 
-  lazy val isGenesis: Boolean = height == TestNetConstants.TestNetChainConstants.GenesisHeight
+  lazy val isGenesis: Boolean = height == TestNetConstants.GenesisHeight
 
   lazy val payloadId: ModifierId =
     ModifierWithDigest.computeId(Payload.modifierTypeId, id, transactionsRoot)
