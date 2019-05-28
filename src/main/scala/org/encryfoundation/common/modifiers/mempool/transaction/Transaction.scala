@@ -26,7 +26,7 @@ case class Transaction(fee: Amount,
                        directives: IndexedSeq[Directive],
                        defaultProofOpt: Option[Proof]) extends NodeViewModifier with ModifierValidator with PConvertible {
 
-  override val modifierTypeId: ModifierTypeId = Transaction.TransactionTypeId
+  override val modifierTypeId: ModifierTypeId = Transaction.modifierTypeId
 
   override type M = Transaction
 
@@ -69,7 +69,7 @@ case class Transaction(fee: Amount,
 
 object Transaction {
 
-  val TransactionTypeId: ModifierTypeId = TaggedTypes.ModifierTypeId @@ 2.toByte
+  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ 2.toByte
 
   case class TransactionValidationException(s: String) extends Exception(s)
 

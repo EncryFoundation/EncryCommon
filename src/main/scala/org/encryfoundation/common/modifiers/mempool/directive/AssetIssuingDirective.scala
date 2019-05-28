@@ -19,7 +19,7 @@ case class AssetIssuingDirective(contractHash: ContractHash, amount: Amount) ext
 
   override type M = AssetIssuingDirective
 
-  override val typeId: DTypeId = AssetIssuingDirective.AssetIssuingDirectiveTypeId
+  override val typeId: DTypeId = AssetIssuingDirective.modifierTypeId
 
   override lazy val isValid: Boolean = amount > 0
 
@@ -37,7 +37,7 @@ case class AssetIssuingDirective(contractHash: ContractHash, amount: Amount) ext
 
 object AssetIssuingDirective {
 
-  val AssetIssuingDirectiveTypeId: DTypeId = 2: Byte
+  val modifierTypeId: DTypeId = 2: Byte
 
   implicit val jsonEncoder: Encoder[AssetIssuingDirective] = (d: AssetIssuingDirective) => Map(
     "typeId"       -> d.typeId.asJson,

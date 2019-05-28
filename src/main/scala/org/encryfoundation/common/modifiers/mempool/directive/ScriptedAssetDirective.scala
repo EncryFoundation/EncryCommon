@@ -22,7 +22,7 @@ case class ScriptedAssetDirective(contractHash: ContractHash,
 
   override type M = ScriptedAssetDirective
 
-  override val typeId: DTypeId = ScriptedAssetDirective.ScriptedAssetDirectiveTypeId
+  override val typeId: DTypeId = ScriptedAssetDirective.modifierTypeId
 
   override lazy val isValid: Boolean = amount > 0
 
@@ -36,7 +36,7 @@ case class ScriptedAssetDirective(contractHash: ContractHash,
 
 object ScriptedAssetDirective {
 
-  val ScriptedAssetDirectiveTypeId: DTypeId = 3: Byte
+  val modifierTypeId: DTypeId = 3: Byte
 
   implicit val jsonEncoder: Encoder[ScriptedAssetDirective] = (d: ScriptedAssetDirective) => Map(
     "typeId"       -> d.typeId.asJson,

@@ -9,16 +9,16 @@ import scala.util.{Failure, Try}
 object HistoryModifiersProtoSerializer {
 
   def toProto(modifier: PersistentModifier): Array[Byte] = modifier match {
-    case m: Header   => Header.HeaderTypeId +: HeaderProtoSerializer.toProto(m).toByteArray
-    case m: ADProofs => ADProofs.ADProofsTypeId +: ADProofsProtoSerializer.toProto(m).toByteArray
-    case m: Payload  => Payload.PayloadTypeId +: PayloadProtoSerializer.toProto(m).toByteArray
+    case m: Header   => Header.modifierTypeId +: HeaderProtoSerializer.toProto(m).toByteArray
+    case m: ADProofs => ADProofs.modifierTypeId +: ADProofsProtoSerializer.toProto(m).toByteArray
+    case m: Payload  => Payload.modifierTypeId +: PayloadProtoSerializer.toProto(m).toByteArray
     case m           => throw new RuntimeException(s"Try to serialize unknown modifier: $m to proto.")
   }
 
   def fromProto(bytes: Array[Byte]): Try[PersistentModifier] = Try(bytes.head match {
-    case Header.HeaderTypeId     => HeaderProtoSerializer.fromProto(HeaderProtoMessage.parseFrom(bytes.tail))
-    case ADProofs.ADProofsTypeId => Try(ADProofsProtoSerializer.fromProto(AdProofsProtoMessage.parseFrom(bytes.tail)))
-    case Payload.PayloadTypeId   => PayloadProtoSerializer.fromProto(PayloadProtoMessage.parseFrom(bytes.tail))
-    case m                       => Failure(new RuntimeException(s"Try to deserialize unknown modifier: $m from proto."))
+    case Header.`modifierTypeId`   => HeaderProtoSerializer.fromProto(HeaderProtoMessage.parseFrom(bytes.tail))
+    case ADProofs.`modifierTypeId` => Try(ADProofsProtoSerializer.fromProto(AdProofsProtoMessage.parseFrom(bytes.tail)))
+    case Payload.`modifierTypeId`  => PayloadProtoSerializer.fromProto(PayloadProtoMessage.parseFrom(bytes.tail))
+    case m                         => Failure(new RuntimeException(s"Try to deserialize unknown modifier: $m from proto."))
   }).flatten
 }

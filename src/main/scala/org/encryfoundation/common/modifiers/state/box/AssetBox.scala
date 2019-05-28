@@ -24,7 +24,7 @@ case class AssetBox(override val proposition: EncryProposition,
 
   override type M = AssetBox
 
-  override val typeId: BxTypeId = AssetBox.TypeId
+  override val typeId: BxTypeId = AssetBox.modifierTypeId
 
   override def serializer: Serializer[M] = AssetBoxSerializer
 
@@ -43,10 +43,10 @@ case class AssetBox(override val proposition: EncryProposition,
 
 object AssetBox {
 
-  val TypeId: BxTypeId = 1.toByte
+  val modifierTypeId: BxTypeId = 1.toByte
 
   implicit val jsonEncoder: Encoder[AssetBox] = (bx: AssetBox) => Map(
-    "type"        -> TypeId.asJson,
+    "type"        -> modifierTypeId.asJson,
     "id"          -> Algos.encode(bx.id).asJson,
     "proposition" -> bx.proposition.asJson,
     "nonce"       -> bx.nonce.asJson,

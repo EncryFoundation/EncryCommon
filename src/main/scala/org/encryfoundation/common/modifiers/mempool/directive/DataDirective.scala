@@ -18,7 +18,7 @@ case class DataDirective(contractHash: ContractHash, data: Array[Byte]) extends 
 
   override type M = DataDirective
 
-  override val typeId: DTypeId = DataDirective.DataDirectiveTypeId
+  override val typeId: DTypeId = DataDirective.modifierTypeId
 
   override lazy val isValid: Boolean = data.length <= Constants.MaxDataLength
 
@@ -32,7 +32,7 @@ case class DataDirective(contractHash: ContractHash, data: Array[Byte]) extends 
 
 object DataDirective {
 
-  val DataDirectiveTypeId: DTypeId = 5: Byte
+  val modifierTypeId: DTypeId = 5: Byte
 
   implicit val jsonEncoder: Encoder[DataDirective] = (d: DataDirective) => Map(
     "typeId"       -> d.typeId.asJson,

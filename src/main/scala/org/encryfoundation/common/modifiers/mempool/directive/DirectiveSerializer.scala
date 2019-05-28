@@ -26,18 +26,18 @@ object DirectiveProtoSerializer {
 object DirectiveSerializer extends Serializer[Directive] {
 
   override def toBytes(obj: Directive): Array[Byte] = obj match {
-    case td: TransferDirective       => TransferDirective.TransferDirectiveTypeId +: TransferDirectiveSerializer.toBytes(td)
-    case aid: AssetIssuingDirective  => AssetIssuingDirective.AssetIssuingDirectiveTypeId +: AssetIssuingDirectiveSerializer.toBytes(aid)
-    case sad: ScriptedAssetDirective => ScriptedAssetDirective.ScriptedAssetDirectiveTypeId +: ScriptedAssetDirectiveSerializer.toBytes(sad)
-    case dd: DataDirective           => DataDirective.DataDirectiveTypeId +: DataDirectiveSerializer.toBytes(dd)
+    case td: TransferDirective       => TransferDirective.modifierTypeId +: TransferDirectiveSerializer.toBytes(td)
+    case aid: AssetIssuingDirective  => AssetIssuingDirective.modifierTypeId +: AssetIssuingDirectiveSerializer.toBytes(aid)
+    case sad: ScriptedAssetDirective => ScriptedAssetDirective.modifierTypeId +: ScriptedAssetDirectiveSerializer.toBytes(sad)
+    case dd: DataDirective           => DataDirective.modifierTypeId +: DataDirectiveSerializer.toBytes(dd)
     case m                           => throw new Exception(s"Serialization of unknown directive type: $m")
   }
 
   override def parseBytes(bytes: Array[Byte]): Try[Directive] = Try(bytes.head).flatMap {
-    case TransferDirective.TransferDirectiveTypeId           => TransferDirectiveSerializer.parseBytes(bytes.tail)
-    case AssetIssuingDirective.AssetIssuingDirectiveTypeId   => AssetIssuingDirectiveSerializer.parseBytes(bytes.tail)
-    case ScriptedAssetDirective.ScriptedAssetDirectiveTypeId => ScriptedAssetDirectiveSerializer.parseBytes(bytes.tail)
-    case DataDirective.DataDirectiveTypeId                   => DataDirectiveSerializer.parseBytes(bytes.tail)
-    case t                                                   => Failure(new Exception(s"Got unknown typeId for directive: $t"))
+    case TransferDirective.`modifierTypeId`      => TransferDirectiveSerializer.parseBytes(bytes.tail)
+    case AssetIssuingDirective.`modifierTypeId`  => AssetIssuingDirectiveSerializer.parseBytes(bytes.tail)
+    case ScriptedAssetDirective.`modifierTypeId` => ScriptedAssetDirectiveSerializer.parseBytes(bytes.tail)
+    case DataDirective.`modifierTypeId`          => DataDirectiveSerializer.parseBytes(bytes.tail)
+    case t                                       => Failure(new Exception(s"Got unknown typeId for directive: $t"))
   }
 }

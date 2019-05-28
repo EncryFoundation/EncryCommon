@@ -24,7 +24,7 @@ case class TransferDirective(address: Address,
 
   override type M = TransferDirective
 
-  override val typeId: DTypeId = TransferDirective.TransferDirectiveTypeId
+  override val typeId: DTypeId = TransferDirective.modifierTypeId
 
   override lazy val isValid: Boolean = amount > 0 && EncryAddress.resolveAddress(address).isSuccess
 
@@ -39,7 +39,7 @@ case class TransferDirective(address: Address,
 
 object TransferDirective {
 
-  val TransferDirectiveTypeId: DTypeId = 1: Byte
+  val modifierTypeId: DTypeId = 1: Byte
 
   implicit val jsonEncoder: Encoder[TransferDirective] = (d: TransferDirective) => Map(
     "typeId"  -> d.typeId.asJson,

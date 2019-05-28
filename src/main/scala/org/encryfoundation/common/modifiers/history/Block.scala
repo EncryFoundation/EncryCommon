@@ -8,6 +8,7 @@ import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
 import org.encryfoundation.common.validation.ModifierValidator
 import io.circe.syntax._
+import org.encryfoundation.common.utils.TaggedTypes
 import scala.util.Try
 
 case class Block(header: Header,
@@ -16,7 +17,7 @@ case class Block(header: Header,
 
   override type M = Block
 
-  override val modifierTypeId: ModifierTypeId = Block.BlockTypeId
+  override val modifierTypeId: ModifierTypeId = Block.modifierTypeId
 
   override lazy val id: ModifierId = header.id
 
@@ -32,7 +33,7 @@ case class Block(header: Header,
 
 object Block {
 
-  val BlockTypeId: ModifierTypeId = ModifierTypeId @@ (100: Byte)
+  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (100: Byte)
 
   implicit val jsonEncoder: Encoder[Block] = (b: Block) => Map(
     "header"   -> b.header.asJson,
