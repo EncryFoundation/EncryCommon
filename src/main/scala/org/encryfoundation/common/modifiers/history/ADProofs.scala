@@ -8,7 +8,8 @@ import io.circe.syntax._
 import org.encryfoundation.common.modifiers.{ModifierWithDigest, PersistentModifier}
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.TaggedTypes._
-import org.encryfoundation.common.utils.{Algos, Constants}
+import org.encryfoundation.common.utils.Algos
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import scorex.crypto.hash.Digest32
 import scala.util.Try
 
@@ -17,7 +18,7 @@ case class ADProofs(headerId: ModifierId,
 
   override type M = ADProofs
 
-  override val modifierTypeId: ModifierTypeId = ADProofs.ADProofsTypeId
+  override val modifierTypeId: ModifierTypeId = ADProofs.modifierTypeId
 
   override lazy val serializer: Serializer[ADProofs] = ADProofSerializer
 
@@ -32,7 +33,7 @@ case class ADProofs(headerId: ModifierId,
 
 object ADProofs {
 
-  val ADProofsTypeId: ModifierTypeId = ModifierTypeId @@ (104: Byte)
+  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (104: Byte)
 
   implicit val jsonEncoder: Encoder[ADProofs] = (p: ADProofs) => Map(
     "headerId"   -> Algos.encode(p.headerId).asJson,
@@ -69,7 +70,7 @@ object ADProofSerializer extends Serializer[ADProofs] {
   override def toBytes(obj: ADProofs): Array[Byte] = Bytes.concat(obj.headerId, obj.proofBytes)
 
   override def parseBytes(bytes: Array[Byte]): Try[ADProofs] = Try(ADProofs(
-    ModifierId @@ bytes.take(Constants.ModifierIdSize),
-    SerializedAdProof @@ bytes.slice(Constants.ModifierIdSize, bytes.length))
+    ModifierId @@ bytes.take(TestNetConstants.ModifierIdSize),
+    SerializedAdProof @@ bytes.slice(TestNetConstants.ModifierIdSize, bytes.length))
   )
 }

@@ -10,10 +10,12 @@ import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
 import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.{AssetBox, EncryBaseBox, EncryProposition}
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants, Utils}
+import org.encryfoundation.common.utils.{Algos, Utils}
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.prismlang.compiler.CompiledContract.ContractHash
 import scorex.crypto.hash.Digest32
+
 import scala.util.Try
 
 case class ScriptedAssetDirective(contractHash: ContractHash,
@@ -22,7 +24,7 @@ case class ScriptedAssetDirective(contractHash: ContractHash,
 
   override type M = ScriptedAssetDirective
 
-  override val typeId: DTypeId = ScriptedAssetDirective.ScriptedAssetDirectiveTypeId
+  override val typeId: DTypeId = ScriptedAssetDirective.modifierTypeId
 
   override lazy val isValid: Boolean = amount > 0
 
@@ -36,7 +38,7 @@ case class ScriptedAssetDirective(contractHash: ContractHash,
 
 object ScriptedAssetDirective {
 
-  val ScriptedAssetDirectiveTypeId: DTypeId = 3: Byte
+  val modifierTypeId: DTypeId = 3: Byte
 
   implicit val jsonEncoder: Encoder[ScriptedAssetDirective] = (d: ScriptedAssetDirective) => Map(
     "typeId"       -> d.typeId.asJson,
@@ -88,10 +90,10 @@ object ScriptedAssetDirectiveSerializer extends Serializer[ScriptedAssetDirectiv
     )
 
   override def parseBytes(bytes: Array[Byte]): Try[ScriptedAssetDirective] = Try {
-    val contractHash: ContractHash = bytes.take(Constants.DigestLength)
-    val amount: Amount = Longs.fromByteArray(bytes.slice(Constants.DigestLength, Constants.DigestLength + 8))
-    val tokenIdOpt: Option[ADKey] = if ((bytes.length - (Constants.DigestLength + 8)) == Constants.ModifierIdSize) {
-      Some(ADKey @@ bytes.takeRight(Constants.ModifierIdSize))
+    val contractHash: ContractHash = bytes.take(TestNetConstants.DigestLength)
+    val amount: Amount = Longs.fromByteArray(bytes.slice(TestNetConstants.DigestLength, TestNetConstants.DigestLength + 8))
+    val tokenIdOpt: Option[ADKey] = if ((bytes.length - (TestNetConstants.DigestLength + 8)) == TestNetConstants.ModifierIdSize) {
+      Some(ADKey @@ bytes.takeRight(TestNetConstants.ModifierIdSize))
     } else None
     ScriptedAssetDirective(contractHash, amount, tokenIdOpt)
   }

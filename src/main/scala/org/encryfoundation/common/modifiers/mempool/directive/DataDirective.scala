@@ -9,18 +9,20 @@ import io.circe.{Decoder, Encoder, HCursor}
 import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
 import org.encryfoundation.common.modifiers.state.box.{DataBox, EncryBaseBox, EncryProposition}
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants, Utils}
+import org.encryfoundation.common.utils.constants.TestNetConstants
+import org.encryfoundation.common.utils.{Algos, Utils}
 import org.encryfoundation.prismlang.compiler.CompiledContract.ContractHash
 import scorex.crypto.hash.Digest32
+
 import scala.util.Try
 
 case class DataDirective(contractHash: ContractHash, data: Array[Byte]) extends Directive {
 
   override type M = DataDirective
 
-  override val typeId: DTypeId = DataDirective.DataDirectiveTypeId
+  override val typeId: DTypeId = DataDirective.modifierTypeId
 
-  override lazy val isValid: Boolean = data.length <= Constants.MaxDataLength
+  override lazy val isValid: Boolean = data.length <= TestNetConstants.MaxDataLength
 
   override def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox] =
     Seq(DataBox(EncryProposition(contractHash), Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)), data))
@@ -32,7 +34,7 @@ case class DataDirective(contractHash: ContractHash, data: Array[Byte]) extends 
 
 object DataDirective {
 
-  val DataDirectiveTypeId: DTypeId = 5: Byte
+  val modifierTypeId: DTypeId = 5: Byte
 
   implicit val jsonEncoder: Encoder[DataDirective] = (d: DataDirective) => Map(
     "typeId"       -> d.typeId.asJson,
@@ -71,9 +73,9 @@ object DataDirectiveSerializer extends Serializer[DataDirective] {
     )
 
   override def parseBytes(bytes: Array[Byte]): Try[DataDirective] = Try {
-    val contractHash: ContractHash = bytes.take(Constants.DigestLength)
-    val dataLen: Int = Ints.fromByteArray(bytes.slice(Constants.DigestLength, Constants.DigestLength + 4))
-    val data: Array[DTypeId] = bytes.slice(Constants.DigestLength + 4, Constants.DigestLength + 4 + dataLen)
+    val contractHash: ContractHash = bytes.take(TestNetConstants.DigestLength)
+    val dataLen: Int = Ints.fromByteArray(bytes.slice(TestNetConstants.DigestLength, TestNetConstants.DigestLength + 4))
+    val data: Array[DTypeId] = bytes.slice(TestNetConstants.DigestLength + 4, TestNetConstants.DigestLength + 4 + dataLen)
     DataDirective(contractHash, data)
   }
 }

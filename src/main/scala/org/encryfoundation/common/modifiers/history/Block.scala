@@ -8,6 +8,9 @@ import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
 import org.encryfoundation.common.validation.ModifierValidator
 import io.circe.syntax._
+import org.encryfoundation.common.modifiers.mempool.directive.TransferDirective
+import org.encryfoundation.common.utils.Algos
+
 import scala.util.Try
 
 case class Block(header: Header,
@@ -16,7 +19,7 @@ case class Block(header: Header,
 
   override type M = Block
 
-  override val modifierTypeId: ModifierTypeId = Block.BlockTypeId
+  override val modifierTypeId: ModifierTypeId = Block.modifierTypeId
 
   override lazy val id: ModifierId = header.id
 
@@ -24,15 +27,33 @@ case class Block(header: Header,
 
   override def serializer: Serializer[Block] = BlockSerializer
 
-  override def toString: String = s"(Block: height=${header.height}, timestamp=${header.timestamp}, " +
-    s"txQty=${payload.txs.size}, id=${header.encodedId})"
+  override def toString: String = {
+    val encodedId: String = Algos.encode(id)
+    val encodedParentId: String = Algos.encode(parentId)
+    val proofsRoot: String = Algos.encode(header.adProofsRoot)
+    val stateRoot: String = Algos.encode(header.stateRoot)
+    val transactionsRoot: String = Algos.encode(header.transactionsRoot)
+    val proofs: String = adProofsOpt.map(p => Algos.encode(p.bytes)).getOrElse("")
+    val solution: String = header.equihashSolution.ints.mkString("{", ", ", "}")
+    val (minerAddress: String, minerReward: Long) = payload.txs.last.directives.head match {
+      case TransferDirective(address, amount, tokenIdOpt) if tokenIdOpt.isEmpty => address -> amount
+      case _ => "unknown" -> 0
+    }
+    val feesTotal: Long = payload.txs.map(_.fee).sum
+    val txsSize: Int = payload.txs.map(_.bytes.length).sum
+
+    s"('$encodedId', '$encodedParentId', '${header.version}', '${header.height}', '$proofsRoot'," +
+      s" '$stateRoot', '$transactionsRoot', '${header.timestamp}', '${header.difficulty}'," +
+      s" '${bytes.length}', '$solution', '$proofs', '${payload.txs.size}', '$minerAddress'," +
+      s" '$minerReward', '$feesTotal', '$txsSize', TRUE)"
+  }
 
   def toProtoBlock: BlockProtoMessage = BlockProtoSerializer.toProto(this)
 }
 
 object Block {
 
-  val BlockTypeId: ModifierTypeId = ModifierTypeId @@ (100: Byte)
+  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (100: Byte)
 
   implicit val jsonEncoder: Encoder[Block] = (b: Block) => Map(
     "header"   -> b.header.asJson,

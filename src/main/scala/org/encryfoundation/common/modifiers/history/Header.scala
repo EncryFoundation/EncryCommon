@@ -13,7 +13,8 @@ import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
 import scala.util.Try
 import Header._
-import org.encryfoundation.common.utils.{Algos, Constants}
+import org.encryfoundation.common.utils.constants.TestNetConstants
+import org.encryfoundation.common.utils.Algos
 
 case class Header(version: Byte,
                   override val parentId: ModifierId,
@@ -28,7 +29,7 @@ case class Header(version: Byte,
 
   override type M = Header
 
-  override val modifierTypeId: ModifierTypeId = Header.HeaderTypeId
+  override val modifierTypeId: ModifierTypeId = Header.modifierTypeId
 
   lazy val powHash: Digest32 = getPowHash(this)
 
@@ -36,12 +37,12 @@ case class Header(version: Byte,
 
   override lazy val id: ModifierId = ModifierId @@ powHash.untag(Digest32)
 
-  lazy val isGenesis: Boolean = height == Constants.Chain.GenesisHeight
+  lazy val isGenesis: Boolean = height == TestNetConstants.GenesisHeight
 
   lazy val payloadId: ModifierId =
-    ModifierWithDigest.computeId(Payload.PayloadTypeId, id, transactionsRoot)
+    ModifierWithDigest.computeId(Payload.modifierTypeId, id, transactionsRoot)
 
-  lazy val adProofsId: ModifierId = ModifierWithDigest.computeId(ADProofs.ADProofsTypeId, id, adProofsRoot)
+  lazy val adProofsId: ModifierId = ModifierWithDigest.computeId(ADProofs.modifierTypeId, id, adProofsRoot)
 
   lazy val ADProofAndPayloadIds: Seq[ModifierId] = Seq(adProofsId, payloadId)
 
@@ -63,9 +64,9 @@ case class Header(version: Byte,
 
 object Header {
 
-  val HeaderTypeId: ModifierTypeId = ModifierTypeId @@ (101: Byte)
+  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (101: Byte)
 
-  lazy val GenesisParentId: ModifierId = ModifierId @@ Array.fill(Constants.DigestLength)(0: Byte)
+  lazy val GenesisParentId: ModifierId = ModifierId @@ Array.fill(TestNetConstants.DigestLength)(0: Byte)
 
   implicit val jsonEncoder: Encoder[Header] = (h: Header) => Map(
     "id"               -> Algos.encode(h.id).asJson,

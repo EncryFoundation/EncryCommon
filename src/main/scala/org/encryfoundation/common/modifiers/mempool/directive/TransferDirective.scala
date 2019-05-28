@@ -12,10 +12,12 @@ import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress.Add
 import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.{AssetBox, EncryBaseBox, EncryProposition}
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants, Utils}
+import org.encryfoundation.common.utils.{Algos, Utils}
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import scorex.crypto.hash.Digest32
 import supertagged.@@
+
 import scala.util.Try
 
 case class TransferDirective(address: Address,
@@ -24,7 +26,7 @@ case class TransferDirective(address: Address,
 
   override type M = TransferDirective
 
-  override val typeId: DTypeId = TransferDirective.TransferDirectiveTypeId
+  override val typeId: DTypeId = TransferDirective.modifierTypeId
 
   override lazy val isValid: Boolean = amount > 0 && EncryAddress.resolveAddress(address).isSuccess
 
@@ -39,7 +41,7 @@ case class TransferDirective(address: Address,
 
 object TransferDirective {
 
-  val TransferDirectiveTypeId: DTypeId = 1: Byte
+  val modifierTypeId: DTypeId = 1: Byte
 
   implicit val jsonEncoder: Encoder[TransferDirective] = (d: TransferDirective) => Map(
     "typeId"  -> d.typeId.asJson,
@@ -94,8 +96,8 @@ object TransferDirectiveSerializer extends Serializer[TransferDirective] {
     val addressLen: Int = bytes.head.toInt
     val address: Address = new String(bytes.slice(1, 1 + addressLen), Algos.charset)
     val amount: Amount = Longs.fromByteArray(bytes.slice(1 + addressLen, 1 + addressLen + 8))
-    val tokenIdOpt: Option[@@[Array[DTypeId], ADKey.Tag]] = if ((bytes.length - (1 + addressLen + 8)) == Constants.ModifierIdSize) {
-      Some(ADKey @@ bytes.takeRight(Constants.ModifierIdSize))
+    val tokenIdOpt: Option[@@[Array[DTypeId], ADKey.Tag]] = if ((bytes.length - (1 + addressLen + 8)) == TestNetConstants.ModifierIdSize) {
+      Some(ADKey @@ bytes.takeRight(TestNetConstants.ModifierIdSize))
     } else None
     TransferDirective(address, amount, tokenIdOpt)
   }

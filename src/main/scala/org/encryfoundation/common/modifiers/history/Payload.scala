@@ -7,9 +7,9 @@ import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
 import org.apache.commons.lang.ArrayUtils
 import org.encryfoundation.common.modifiers.mempool.transaction.{Transaction, TransactionProtoSerializer, TransactionSerializer}
-import org.encryfoundation.common.modifiers.{PersistentModifier, ModifierWithDigest}
+import org.encryfoundation.common.modifiers.{ModifierWithDigest, PersistentModifier}
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.Algos
+import org.encryfoundation.common.utils.{Algos, TaggedTypes}
 import org.encryfoundation.common.utils.TaggedTypes.{LeafData, ModifierId, ModifierTypeId}
 import scorex.crypto.hash.Digest32
 import scala.util.{Success, Try}
@@ -21,7 +21,7 @@ case class Payload(override val headerId: ModifierId,
 
   override type M = Payload
 
-  override val modifierTypeId: ModifierTypeId = Payload.PayloadTypeId
+  override val modifierTypeId: ModifierTypeId = Payload.modifierTypeId
 
   override lazy val digest: Digest32 = Payload.rootHash(txs.map(_.id))
 
@@ -50,7 +50,7 @@ object Payload {
     transactions
   )
 
-  val PayloadTypeId: ModifierTypeId = ModifierTypeId @@ (102: Byte)
+  val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (102: Byte)
 
   def rootHash(ids: Seq[ModifierId]): Digest32 = Algos.merkleTreeRoot(LeafData !@@ ids)
 

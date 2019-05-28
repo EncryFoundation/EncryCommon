@@ -1,5 +1,5 @@
 name := "encry-common"
-version := "0.8.7"
+version := "0.8.8"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
@@ -47,5 +47,9 @@ pomExtra in ThisBuild :=
       <developer>
         <id>Bromel777</id>
         <name>Alexander Romanovskiy</name>
+      </developer>
+      <developer>
+        <id>GusevTimofey</id>
+        <name>Gusev Timofey</name>
       </developer>
     </developers>

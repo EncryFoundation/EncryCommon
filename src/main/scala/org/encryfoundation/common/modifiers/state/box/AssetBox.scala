@@ -10,9 +10,11 @@ import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.EncryBox.BxTypeId
 import org.encryfoundation.common.modifiers.state.box.TokenIssuingBox.TokenId
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants}
+import org.encryfoundation.common.utils.constants.TestNetConstants
+import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.prismlang.core.Types
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
+
 import scala.util.Try
 
 /** Represents monetary asset of some type locked with some `proposition`.
@@ -24,7 +26,7 @@ case class AssetBox(override val proposition: EncryProposition,
 
   override type M = AssetBox
 
-  override val typeId: BxTypeId = AssetBox.TypeId
+  override val typeId: BxTypeId = AssetBox.modifierTypeId
 
   override def serializer: Serializer[M] = AssetBoxSerializer
 
@@ -35,7 +37,7 @@ case class AssetBox(override val proposition: EncryProposition,
   override def asPrism: PObject =
     PObject(baseFields ++ Map(
       "amount"  -> PValue(amount, Types.PInt),
-      "tokenId" -> PValue(tokenIdOpt.getOrElse(Constants.IntrinsicTokenId), Types.PCollection.ofByte)
+      "tokenId" -> PValue(tokenIdOpt.getOrElse(TestNetConstants.IntrinsicTokenId), Types.PCollection.ofByte)
     ), tpe)
 
   override def serializeToProto: BoxProtoMessage = AssetBoxProtoSerializer.toProto(this)
@@ -43,10 +45,10 @@ case class AssetBox(override val proposition: EncryProposition,
 
 object AssetBox {
 
-  val TypeId: BxTypeId = 1.toByte
+  val modifierTypeId: BxTypeId = 1.toByte
 
   implicit val jsonEncoder: Encoder[AssetBox] = (bx: AssetBox) => Map(
-    "type"        -> TypeId.asJson,
+    "type"        -> modifierTypeId.asJson,
     "id"          -> Algos.encode(bx.id).asJson,
     "proposition" -> bx.proposition.asJson,
     "nonce"       -> bx.nonce.asJson,
@@ -106,8 +108,8 @@ object AssetBoxSerializer extends Serializer[AssetBox] {
     val proposition: EncryProposition = EncryPropositionSerializer.parseBytes(iBytes.take(propositionLen)).get
     val nonce: Amount = Longs.fromByteArray(iBytes.slice(propositionLen, propositionLen + 8))
     val amount: Amount = Longs.fromByteArray(iBytes.slice(propositionLen + 8, propositionLen + 8 + 8))
-    val tokenIdOpt: Option[TokenId] = if ((iBytes.length - (propositionLen + 8 + 8)) == Constants.ModifierIdSize) {
-      Some(iBytes.takeRight(Constants.ModifierIdSize))
+    val tokenIdOpt: Option[TokenId] = if ((iBytes.length - (propositionLen + 8 + 8)) == TestNetConstants.ModifierIdSize) {
+      Some(iBytes.takeRight(TestNetConstants.ModifierIdSize))
     } else None
     AssetBox(proposition, nonce, amount, tokenIdOpt)
   }

@@ -10,9 +10,11 @@ import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.EncryBox.BxTypeId
 import org.encryfoundation.common.modifiers.state.box.TokenIssuingBox.TokenId
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants}
+import org.encryfoundation.common.utils.constants.TestNetConstants
+import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.prismlang.core.Types
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
+
 import scala.util.Try
 
 case class TokenIssuingBox(override val proposition: EncryProposition,
@@ -23,7 +25,7 @@ case class TokenIssuingBox(override val proposition: EncryProposition,
 
   override type M = TokenIssuingBox
 
-  override val typeId: BxTypeId = TokenIssuingBox.TypeId
+  override val typeId: BxTypeId = TokenIssuingBox.modifierTypeId
 
   override def serializer: Serializer[M] = AssetIssuingBoxSerializer
 
@@ -40,10 +42,10 @@ object TokenIssuingBox {
 
   type TokenId = Array[Byte]
 
-  val TypeId: BxTypeId = 3.toByte
+  val modifierTypeId: BxTypeId = 3.toByte
 
   implicit val jsonEncoder: Encoder[TokenIssuingBox] = (bx: TokenIssuingBox) => Map(
-    "type"        -> TypeId.asJson,
+    "type"        -> modifierTypeId.asJson,
     "id"          -> Algos.encode(bx.id).asJson,
     "tokenId"     -> Algos.encode(bx.tokenId).asJson,
     "proposition" -> bx.proposition.asJson,
@@ -104,7 +106,7 @@ object AssetIssuingBoxSerializer extends Serializer[TokenIssuingBox] {
     val proposition: EncryProposition = EncryPropositionSerializer.parseBytes(iBytes.take(propositionLen)).get
     val nonce: Amount = Longs.fromByteArray(iBytes.slice(propositionLen, propositionLen + 8))
     val amount: Amount = Longs.fromByteArray(iBytes.slice(propositionLen + 8, propositionLen + 8 + 8))
-    val creationId: TokenId = bytes.takeRight(Constants.ModifierIdSize)
+    val creationId: TokenId = bytes.takeRight(TestNetConstants.ModifierIdSize)
     TokenIssuingBox(proposition, nonce, amount, creationId)
   }
 }
