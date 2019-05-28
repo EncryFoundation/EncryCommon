@@ -8,7 +8,8 @@ import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
 import org.encryfoundation.common.validation.ModifierValidator
 import io.circe.syntax._
-import org.encryfoundation.common.utils.TaggedTypes
+import org.encryfoundation.common.modifiers.mempool.directive.TransferDirective
+import scorex.crypto.encode.Base16
 import scala.util.Try
 
 case class Block(header: Header,
@@ -25,8 +26,26 @@ case class Block(header: Header,
 
   override def serializer: Serializer[Block] = BlockSerializer
 
-  override def toString: String = s"(Block: height=${header.height}, timestamp=${header.timestamp}, " +
-    s"txQty=${payload.txs.size}, id=${header.encodedId})"
+  override def toString: String = {
+    val encodedId: String = Base16.encode(id)
+    val encodedParentId: String = Base16.encode(parentId)
+    val proofsRoot: String = Base16.encode(header.adProofsRoot)
+    val stateRoot: String = Base16.encode(header.stateRoot)
+    val transactionsRoot: String = Base16.encode(header.transactionsRoot)
+    val proofs: String = adProofsOpt.map(p => Base16.encode(p.bytes)).getOrElse("")
+    val solution: String = header.equihashSolution.ints.mkString("{", ", ", "}")
+    val (minerAddress: String, minerReward: Long) = payload.txs.last.directives.head match {
+      case TransferDirective(address, amount, tokenIdOpt) if tokenIdOpt.isEmpty => address -> amount
+      case _ => "unknown" -> 0
+    }
+    val feesTotal: Long = payload.txs.map(_.fee).sum
+    val txsSize: Int = payload.txs.map(_.bytes.length).sum
+
+    s"('$encodedId', '$encodedParentId', '${header.version}', '${header.height}', '$proofsRoot'," +
+      s" '$stateRoot', '$transactionsRoot', '${header.timestamp}', '${header.difficulty}'," +
+      s" '${bytes.length}', '$solution', '$proofs', '${payload.txs.size}', '$minerAddress'," +
+      s" '$minerReward', '$feesTotal', '$txsSize', TRUE)"
+  }
 
   def toProtoBlock: BlockProtoMessage = BlockProtoSerializer.toProto(this)
 }
