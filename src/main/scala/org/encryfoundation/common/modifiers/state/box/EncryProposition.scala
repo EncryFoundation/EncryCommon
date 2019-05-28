@@ -5,8 +5,9 @@ import io.circe.{Decoder, Encoder, HCursor}
 import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress.Address
 import org.encryfoundation.common.modifiers.mempool.transaction._
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants}
+import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.common.utils.TaggedTypes.Height
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.prismlang.compiler.CompiledContract.ContractHash
 import scorex.crypto.signatures.PublicKey
 
@@ -45,6 +46,6 @@ object EncryPropositionSerializer extends Serializer[EncryProposition] {
   override def toBytes(obj: EncryProposition): Array[Byte] = obj.contractHash
 
   override def parseBytes(bytes: Array[Byte]): Try[EncryProposition] =
-    if (bytes.lengthCompare(Constants.DigestLength) == 0) Success(EncryProposition(bytes))
+    if (bytes.lengthCompare(TestNetConstants.DigestLength) == 0) Success(EncryProposition(bytes))
     else Failure(new Exception("Invalid contract hash length"))
 }

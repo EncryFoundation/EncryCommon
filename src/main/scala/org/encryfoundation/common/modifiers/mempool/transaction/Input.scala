@@ -4,9 +4,10 @@ import com.google.common.primitives.{Ints, Shorts}
 import io.circe.syntax._
 import io.circe.{Decoder, Encoder, HCursor}
 import org.encryfoundation.common.serialization.{BytesSerializable, SerializationException, Serializer}
-import org.encryfoundation.common.utils.{Algos, Constants}
+import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.prismlang.compiler.{CompiledContract, CompiledContractSerializer}
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import scala.util.Try
 
 case class Input(boxId: ADKey, contract: Either[CompiledContract, RegularContract], proofs: List[Proof]) extends BytesSerializable {
@@ -70,13 +71,13 @@ object InputSerializer extends Serializer[Input] {
     }
 
   override def parseBytes(bytes: Array[Byte]): Try[Input] = Try {
-    val boxId: ADKey = ADKey @@ bytes.take(Constants.ModifierIdSize)
-    val contractLen: Int = Ints.fromByteArray(bytes.slice(Constants.ModifierIdSize, Constants.ModifierIdSize + 4))
+    val boxId: ADKey = ADKey @@ bytes.take(TestNetConstants.ModifierIdSize)
+    val contractLen: Int = Ints.fromByteArray(bytes.slice(TestNetConstants.ModifierIdSize, TestNetConstants.ModifierIdSize + 4))
     boxId -> contractLen
   }.flatMap { case (boxId, contractLen) =>
-    decodeEitherCompiledOrRegular(bytes.slice(Constants.ModifierIdSize + 4, Constants.ModifierIdSize + 4 + contractLen)).map { contract =>
-      val proofsQty: Int = bytes.drop(Constants.ModifierIdSize).head
-      val (proofs: List[Proof], _) = (0 until proofsQty).foldLeft(List.empty[Proof], bytes.drop(Constants.ModifierIdSize + 1)) { case ((acc, bytesAcc), _) =>
+    decodeEitherCompiledOrRegular(bytes.slice(TestNetConstants.ModifierIdSize + 4, TestNetConstants.ModifierIdSize + 4 + contractLen)).map { contract =>
+      val proofsQty: Int = bytes.drop(TestNetConstants.ModifierIdSize).head
+      val (proofs: List[Proof], _) = (0 until proofsQty).foldLeft(List.empty[Proof], bytes.drop(TestNetConstants.ModifierIdSize + 1)) { case ((acc, bytesAcc), _) =>
         val proofLen: Int = Shorts.fromByteArray(bytesAcc.take(2))
         val proof: Proof = ProofSerializer.parseBytes(bytesAcc.slice(2, proofLen + 2)).getOrElse(throw SerializationException)
         (acc :+ proof) -> bytesAcc.drop(proofLen + 2)

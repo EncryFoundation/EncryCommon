@@ -10,7 +10,8 @@ import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
 import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.{EncryBaseBox, EncryProposition, TokenIssuingBox}
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants, Utils}
+import org.encryfoundation.common.utils.constants.TestNetConstants
+import org.encryfoundation.common.utils.{Algos, Utils}
 import org.encryfoundation.prismlang.compiler.CompiledContract.ContractHash
 import scorex.crypto.hash.Digest32
 import scala.util.Try
@@ -76,8 +77,8 @@ object AssetIssuingDirectiveSerializer extends Serializer[AssetIssuingDirective]
     )
 
   override def parseBytes(bytes: Array[Byte]): Try[AssetIssuingDirective] = Try {
-    val contractHash: ContractHash = bytes.take(Constants.DigestLength)
-    val amount: Amount = Longs.fromByteArray(bytes.slice(Constants.DigestLength, Constants.DigestLength + 8))
+    val contractHash: ContractHash = bytes.take(TestNetConstants.DigestLength)
+    val amount: Amount = Longs.fromByteArray(bytes.slice(TestNetConstants.DigestLength, TestNetConstants.DigestLength + 8))
     AssetIssuingDirective(contractHash, amount)
   }
 }

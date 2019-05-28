@@ -8,7 +8,8 @@ import io.circe.syntax._
 import org.encryfoundation.common.modifiers.{ModifierWithDigest, PersistentModifier}
 import org.encryfoundation.common.serialization.Serializer
 import org.encryfoundation.common.utils.TaggedTypes._
-import org.encryfoundation.common.utils.{Algos, Constants, TaggedTypes}
+import org.encryfoundation.common.utils.Algos
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import scorex.crypto.hash.Digest32
 import scala.util.Try
 
@@ -69,7 +70,7 @@ object ADProofSerializer extends Serializer[ADProofs] {
   override def toBytes(obj: ADProofs): Array[Byte] = Bytes.concat(obj.headerId, obj.proofBytes)
 
   override def parseBytes(bytes: Array[Byte]): Try[ADProofs] = Try(ADProofs(
-    ModifierId @@ bytes.take(Constants.ModifierIdSize),
-    SerializedAdProof @@ bytes.slice(Constants.ModifierIdSize, bytes.length))
+    ModifierId @@ bytes.take(TestNetConstants.ModifierIdSize),
+    SerializedAdProof @@ bytes.slice(TestNetConstants.ModifierIdSize, bytes.length))
   )
 }

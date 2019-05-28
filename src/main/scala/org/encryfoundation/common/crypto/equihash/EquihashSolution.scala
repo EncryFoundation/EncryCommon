@@ -5,7 +5,7 @@ import java.util
 import com.google.common.primitives.Ints
 import io.circe.{Decoder, Encoder, HCursor}
 import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
-import org.encryfoundation.common.utils.Constants
+import org.encryfoundation.common.utils.constants.TestNetConstants
 
 import scala.util.Try
 
@@ -20,7 +20,7 @@ case class EquihashSolution(ints: Seq[Int]) extends BytesSerializable {
 
 object EquihashSolution {
 
-  val length: Int = Constants.Chain.HashLength
+  val length: Int = TestNetConstants.TestNetChainConstants.HashLength
 
   def empty: EquihashSolution = EquihashSolution(Seq.fill(length)(0))
 

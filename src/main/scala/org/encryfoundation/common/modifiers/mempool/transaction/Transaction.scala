@@ -7,6 +7,7 @@ import org.encryfoundation.prismlang.core.Types
 import io.circe.Encoder
 import org.encryfoundation.prismlang.core.PConvertible
 import scorex.crypto.hash.Digest32
+
 import scala.util.Try
 import com.google.common.primitives.{Bytes, Ints, Longs, Shorts}
 import com.google.protobuf.ByteString
@@ -15,8 +16,9 @@ import org.encryfoundation.common.modifiers.mempool.directive.{Directive, Direct
 import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.EncryBaseBox
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Constants, TaggedTypes}
+import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
+import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.common.validation.{ModifierValidator, ValidationResult}
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
 
@@ -53,7 +55,7 @@ case class Transaction(fee: Amount,
     .demand(inputs.lengthCompare(Short.MaxValue) <= 0, "Wrong number of inputs")
     .demand(directives.lengthCompare(Short.MaxValue) <= 0 && directives.nonEmpty, "Wrong number of directives")
     .demand(directives.forall(_.isValid), "Invalid outputs")
-    .demand(size <= Constants.PayloadMaxSize, "Invalid size")
+    .demand(size <= TestNetConstants.PayloadMaxSize, "Invalid size")
     .result
 
   val tpe: Types.Product = Types.EncryTransaction
