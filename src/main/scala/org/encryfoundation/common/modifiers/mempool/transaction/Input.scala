@@ -76,8 +76,10 @@ object InputSerializer extends Serializer[Input] {
     boxId -> contractLen
   }.flatMap { case (boxId, contractLen) =>
     decodeEitherCompiledOrRegular(bytes.slice(TestNetConstants.ModifierIdSize + 4, TestNetConstants.ModifierIdSize + 4 + contractLen)).map { contract =>
-      val proofsQty: Int = bytes.drop(TestNetConstants.ModifierIdSize).head
-      val (proofs: List[Proof], _) = (0 until proofsQty).foldLeft(List.empty[Proof], bytes.drop(TestNetConstants.ModifierIdSize + 1)) { case ((acc, bytesAcc), _) =>
+      val proofsQty: Int =
+        if (bytes.length <= TestNetConstants.ModifierIdSize + 4 + contractLen) 0
+        else bytes.drop(TestNetConstants.ModifierIdSize + 4 + contractLen).head
+      val (proofs: List[Proof], _) = (0 until proofsQty).foldLeft(List.empty[Proof], bytes.drop(TestNetConstants.ModifierIdSize + 5 + contractLen)) { case ((acc, bytesAcc), _) =>
         val proofLen: Int = Shorts.fromByteArray(bytesAcc.take(2))
         val proof: Proof = ProofSerializer.parseBytes(bytesAcc.slice(2, proofLen + 2)).getOrElse(throw SerializationException)
         (acc :+ proof) -> bytesAcc.drop(proofLen + 2)
