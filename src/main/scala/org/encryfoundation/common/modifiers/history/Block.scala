@@ -14,8 +14,7 @@ import org.encryfoundation.common.utils.Algos
 import scala.util.Try
 
 case class Block(header: Header,
-                 payload: Payload,
-                 adProofsOpt: Option[ADProofs]) extends PersistentModifier with ModifierValidator {
+                 payload: Payload) extends PersistentModifier with ModifierValidator {
 
   override type M = Block
 
@@ -30,10 +29,7 @@ case class Block(header: Header,
   override def toString: String = {
     val encodedId: String = Algos.encode(id)
     val encodedParentId: String = Algos.encode(parentId)
-    val proofsRoot: String = Algos.encode(header.adProofsRoot)
-    val stateRoot: String = Algos.encode(header.stateRoot)
     val transactionsRoot: String = Algos.encode(header.transactionsRoot)
-    val proofs: String = adProofsOpt.map(p => Algos.encode(p.bytes)).getOrElse("")
     val solution: String = header.equihashSolution.ints.mkString("{", ", ", "}")
     val (minerAddress: String, minerReward: Long) = payload.txs.last.directives.head match {
       case TransferDirective(address, amount, tokenIdOpt) if tokenIdOpt.isEmpty => address -> amount
@@ -42,9 +38,9 @@ case class Block(header: Header,
     val feesTotal: Long = payload.txs.map(_.fee).sum
     val txsSize: Int = payload.txs.map(_.bytes.length).sum
 
-    s"('$encodedId', '$encodedParentId', '${header.version}', '${header.height}', '$proofsRoot'," +
-      s" '$stateRoot', '$transactionsRoot', '${header.timestamp}', '${header.difficulty}'," +
-      s" '${bytes.length}', '$solution', '$proofs', '${payload.txs.size}', '$minerAddress'," +
+    s"('$encodedId', '$encodedParentId', '${header.version}', '${header.height}', " +
+      s" '$transactionsRoot', '${header.timestamp}', '${header.difficulty}'," +
+      s" '${bytes.length}', '$solution', '${payload.txs.size}', '$minerAddress'," +
       s" '$minerReward', '$feesTotal', '$txsSize', TRUE)"
   }
 
@@ -58,7 +54,6 @@ object Block {
   implicit val jsonEncoder: Encoder[Block] = (b: Block) => Map(
     "header"   -> b.header.asJson,
     "payload"  -> b.payload.asJson,
-    "adProofs" -> b.adProofsOpt.map(_.asJson).getOrElse(Map.empty[String, String].asJson)
   ).asJson
 
   implicit val jsonDecoder: Decoder[Block] = (c: HCursor) => for {
@@ -66,27 +61,19 @@ object Block {
     payload <- c.downField("payload").as[Payload]
   } yield Block(
     header,
-    payload,
-    None
+    payload
   )
 }
 
 object BlockProtoSerializer {
 
-  def toProto(block: Block): BlockProtoMessage = {
-    val initialBlock = BlockProtoMessage()
+  def toProto(block: Block): BlockProtoMessage = BlockProtoMessage()
       .withHeader(block.header.toHeaderProto)
       .withPayload(block.payload.toProtoPayload)
-    block.adProofsOpt match {
-      case Some(value) => initialBlock.withAdProofsOpt(value.toProtoADProofs)
-      case _ => initialBlock
-    }
-  }
 
   def fromProto(message: BlockProtoMessage): Try[Block] = Try(Block(
     message.header.map(x => HeaderProtoSerializer.fromProto(x)).get.get,
     message.payload.map(x => PayloadProtoSerializer.fromProto(x)).get.get,
-    message.adProofsOpt.map(x => ADProofsProtoSerializer.fromProto(x))
   ))
 }
 
@@ -95,15 +82,11 @@ object BlockSerializer extends Serializer[Block] {
   override def toBytes(obj: Block): Array[Byte] = {
     val headerBytes: Array[Byte] = obj.header.serializer.toBytes(obj.header)
     val payloadBytes: Array[Byte] = obj.payload.serializer.toBytes(obj.payload)
-    val aDProofsBytes: Array[Byte] = obj.adProofsOpt.map(_.serializer.toBytes(obj.adProofsOpt.get))
-      .getOrElse(Array.emptyByteArray)
     Bytes.concat(
       Ints.toByteArray(headerBytes.length),
       headerBytes,
       Ints.toByteArray(payloadBytes.length),
-      payloadBytes,
-      Ints.toByteArray(aDProofsBytes.length),
-      aDProofsBytes
+      payloadBytes
     )
   }
 
@@ -115,9 +98,6 @@ object BlockSerializer extends Serializer[Block] {
     val payloadSize: Int = Ints.fromByteArray(bytes.slice(pointer, pointer + 4))
     val payload: Try[Payload] =
       PayloadSerializer.parseBytes(bytes.slice(pointer + 4, pointer + 4 + payloadSize))
-    pointer += payloadSize + 4
-    val aDProofsSize: Int = Ints.fromByteArray(bytes.slice(pointer, pointer + 4))
-    val aDProofs: Try[ADProofs] = ADProofSerializer.parseBytes(bytes.slice(pointer + 4, pointer + 4 + aDProofsSize))
-    Block(header.get, payload.get, Option(aDProofs.get))
+    Block(header.get, payload.get)
   }
 }

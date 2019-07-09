@@ -1,7 +1,8 @@
 package org.encryfoundation.common.transaction
 
 import org.encryfoundation.common.crypto.encoding.Base58Check
-import org.encryfoundation.common.transaction.EncryAddress.Address
+import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress.Address
+import org.encryfoundation.common.modifiers.mempool.transaction.{EncryAddress, Pay2ContractHashAddress, Pay2PubKeyAddress, PubKeyLockedContract}
 import org.scalatest.{Matchers, PropSpec}
 import scorex.crypto.encode.Base58
 import scorex.crypto.signatures.{Curve25519, PublicKey}

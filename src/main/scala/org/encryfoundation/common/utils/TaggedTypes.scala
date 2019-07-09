@@ -9,7 +9,6 @@ object TaggedTypes {
   type ADKey             = ADKey.Type
   type ADValue           = ADValue.Type
   type ADDigest          = ADDigest.Type
-  type SerializedAdProof = SerializedAdProof.Type
   type Balance           = Balance.Type
   type ModifierTypeId    = ModifierTypeId.Type
   type ModifierId        = ModifierId.Type
@@ -25,8 +24,6 @@ object TaggedTypes {
   object ADValue extends TaggedType[Array[Byte]]
 
   object ADDigest extends TaggedType[Array[Byte]]
-
-  object SerializedAdProof extends TaggedType[Array[Byte]]
 
   object Balance extends TaggedType[Byte]
 
