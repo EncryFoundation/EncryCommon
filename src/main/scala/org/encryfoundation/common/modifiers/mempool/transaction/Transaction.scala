@@ -42,7 +42,7 @@ case class Transaction(fee: Amount,
 
   lazy val size: Int = this.bytes.length
 
-  val newBoxes: Traversable[EncryBaseBox] =
+  def newBoxes: Traversable[EncryBaseBox] =
     directives.zipWithIndex.flatMap { case (d, idx) => d.boxes(Digest32 !@@ id, idx) }
 
   override def toString: String =

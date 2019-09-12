@@ -13,7 +13,7 @@ import scala.util.{Failure, Success, Try}
 
 sealed trait RegularContract {
   val typeId: Byte
-  val contract: CompiledContract
+  def contract: CompiledContract
   def bytes: Array[Byte] = RegularContract.Serializer.toBytes(this)
   def contractHashHex: String = Base16.encode(contract.hash)
 }
