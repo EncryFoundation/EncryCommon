@@ -11,10 +11,12 @@ import org.encryfoundation.common.utils.TaggedTypes.{ADDigest, Difficulty, Modif
 import scorex.crypto.hash.Digest32
 import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
+
 import scala.util.Try
 import Header._
 import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.common.utils.Algos
+import org.encryfoundation.prismlang.utils.BouncyCastleHasher
 
 case class Header(version: Byte,
                   override val parentId: ModifierId,
@@ -23,7 +25,7 @@ case class Header(version: Byte,
                   height: Int,
                   nonce: Long,
                   difficulty: Difficulty,
-                  equihashSolution: EquihashSolution) extends PersistentModifier {
+                  equihashSolution: EquihashSolution) extends PersistentModifier with BouncyCastleHasher {
 
   override type M = Header
 
@@ -38,7 +40,10 @@ case class Header(version: Byte,
   lazy val isGenesis: Boolean = height == TestNetConstants.GenesisHeight
 
   lazy val payloadId: ModifierId =
-    ModifierWithDigest.computeId(Payload.modifierTypeId, id, transactionsRoot)
+    computeId(Payload.modifierTypeId, id, transactionsRoot)
+
+  def computeId(modifierType: ModifierTypeId, headerId: Array[Byte], digest: Array[Byte]): ModifierId =
+    ModifierId @@ prefixedHash(modifierType, headerId, digest).repr
 
   def toHeaderProto: HeaderProtoMessage = HeaderProtoSerializer.toProto(this)
 

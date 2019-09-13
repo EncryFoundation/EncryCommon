@@ -1,13 +1,15 @@
 package org.encryfoundation.common.modifiers.mempool.directive
 
 import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage
+import com.google.common.primitives.Longs
 import io.circe._
 import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
 import org.encryfoundation.common.modifiers.state.box.EncryBaseBox
 import org.encryfoundation.common.serialization.BytesSerializable
+import org.encryfoundation.prismlang.utils.Hasher
 import scorex.crypto.hash.Digest32
 
-trait Directive extends BytesSerializable {
+trait Directive extends BytesSerializable with Hasher {
 
   val typeId: DTypeId
 
@@ -16,6 +18,8 @@ trait Directive extends BytesSerializable {
   def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox]
 
   def toDirectiveProto: DirectiveProtoMessage
+
+  def nonceFromDigest(digest: Array[Byte]): Long = Longs.fromByteArray(blake2b.digest(digest).take(8))
 }
 
 object Directive {

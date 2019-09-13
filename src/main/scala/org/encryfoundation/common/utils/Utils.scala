@@ -1,7 +1,6 @@
 package org.encryfoundation.common.utils
 
 import java.nio.{ByteBuffer, ByteOrder}
-import com.google.common.primitives.Longs
 import org.bouncycastle.crypto.Digest
 
 object Utils {
@@ -32,6 +31,4 @@ object Utils {
   }
 
   def validateSolution(solution: Array[Byte], target: Double): Boolean = countLeadingZeroes(solution) >= target
-
-  def nonceFromDigest(digest: Array[Byte]): Long = Longs.fromByteArray(Algos.hash(digest).take(8))
 }

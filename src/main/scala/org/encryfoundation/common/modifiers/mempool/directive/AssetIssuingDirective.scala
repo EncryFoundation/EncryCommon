@@ -26,9 +26,9 @@ case class AssetIssuingDirective(contractHash: ContractHash, amount: Amount) ext
 
   override def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox] = Seq(TokenIssuingBox(
     EncryProposition(contractHash),
-    Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)),
+    nonceFromDigest(digest ++ Ints.toByteArray(idx)),
     amount,
-    Algos.hash(Ints.toByteArray(idx) ++ digest)
+    blake2b.digest(Ints.toByteArray(idx) ++ digest)
   ))
 
   override def serializer: Serializer[M] = AssetIssuingDirectiveSerializer

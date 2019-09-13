@@ -21,12 +21,14 @@ import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
 import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.common.validation.{ModifierValidator, ValidationResult}
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
+import org.encryfoundation.prismlang.utils.Hasher
 
 case class Transaction(fee: Amount,
                        timestamp: Long,
                        inputs: IndexedSeq[Input],
                        directives: IndexedSeq[Directive],
-                       defaultProofOpt: Option[Proof]) extends NodeViewModifier with ModifierValidator with PConvertible {
+                       defaultProofOpt: Option[Proof])
+  extends NodeViewModifier with ModifierValidator with PConvertible with Hasher with BytesToSign {
 
   override val modifierTypeId: ModifierTypeId = Transaction.modifierTypeId
 
@@ -36,9 +38,9 @@ case class Transaction(fee: Amount,
 
   def toTransactionProto: TransactionProtoMessage = TransactionProtoSerializer.toProto(this)
 
-  val messageToSign: Array[Byte] = UnsignedTransaction.bytesToSign(fee, timestamp, inputs, directives)
+  val messageToSign: Array[Byte] = bytesToSign(fee, timestamp, inputs, directives)
 
-  val id: ModifierId = ModifierId !@@ Algos.hash(messageToSign)
+  val id: ModifierId = ModifierId !@@ blake2b.digest(messageToSign)
 
   val size: Int = this.bytes.length
 
@@ -182,9 +184,9 @@ object TransactionSerializer extends Serializer[Transaction] {
 case class UnsignedTransaction(fee: Amount,
                                timestamp: Long,
                                inputs: IndexedSeq[Input],
-                               directives: IndexedSeq[Directive]) {
+                               directives: IndexedSeq[Directive]) extends BytesToSign with Hasher {
 
-  val messageToSign: Array[Byte] = UnsignedTransaction.bytesToSign(fee, timestamp, inputs, directives)
+  val messageToSign: Array[Byte] = bytesToSign(fee, timestamp, inputs, directives)
 
   def toSigned(proofs: IndexedSeq[Seq[Proof]], defaultProofOpt: Option[Proof]): Transaction = {
     val signedInputs: IndexedSeq[Input] = inputs.zipWithIndex.map { case (input, idx) =>
@@ -194,13 +196,14 @@ case class UnsignedTransaction(fee: Amount,
   }
 }
 
-object UnsignedTransaction {
+trait BytesToSign {
+  this: Hasher =>
 
   def bytesToSign(fee: Amount,
                   timestamp: Long,
                   unlockers: IndexedSeq[Input],
                   directives: IndexedSeq[Directive]): Digest32 =
-    Algos.hash(Bytes.concat(
+    Digest32 @@ blake2b.digest(Bytes.concat(
       unlockers.map(_.bytesWithoutProof).foldLeft(Array[Byte]())(_ ++ _),
       directives.map(_.bytes).foldLeft(Array[Byte]())(_ ++ _),
       Longs.toByteArray(timestamp),
