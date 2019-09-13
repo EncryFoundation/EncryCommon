@@ -16,11 +16,12 @@ import org.encryfoundation.common.modifiers.mempool.directive.{Directive, Direct
 import org.encryfoundation.common.modifiers.state.box.Box.Amount
 import org.encryfoundation.common.modifiers.state.box.EncryBaseBox
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.Algos
+import org.encryfoundation.common.utils.{Algos, PerfomanceUtils}
 import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
 import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.common.validation.{ModifierValidator, ValidationResult}
 import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
+import org.encryfoundation.common.utils.PerfomanceUtils._
 
 case class Transaction(fee: Amount,
                        timestamp: Long,
@@ -34,39 +35,40 @@ case class Transaction(fee: Amount,
 
   override def serializer: Serializer[Transaction] = TransactionSerializer
 
-  def toTransactionProto: TransactionProtoMessage = TransactionProtoSerializer.toProto(this)
+  def toTransactionProto: TransactionProtoMessage = time("Transaction.toTransactionProto", TransactionProtoSerializer.toProto(this))
 
-  val messageToSign: Array[Byte] = UnsignedTransaction.bytesToSign(fee, timestamp, inputs, directives)
+  //88ms
+  lazy val messageToSign: Array[Byte] = time("Transaction.messageToSign", UnsignedTransaction.bytesToSign(fee, timestamp, inputs, directives))
+  //91ms
+  lazy val id: ModifierId = time("Transaction.id: ModifierId", ModifierId !@@ Algos.hash(messageToSign))
+  //56ms
+  lazy val size: Int = time("Transaction.size: Int", this.bytes.length)
 
-  val id: ModifierId = ModifierId !@@ Algos.hash(messageToSign)
-
-  lazy val size: Int = this.bytes.length
-
-  val newBoxes: Traversable[EncryBaseBox] =
-    directives.zipWithIndex.flatMap { case (d, idx) => d.boxes(Digest32 !@@ id, idx) }
+  val newBoxes: Traversable[EncryBaseBox] = directives.zipWithIndex.flatMap { case (d, idx) => d.boxes(Digest32 !@@ id, idx) }
 
   override def toString: String =
     s"<Transaction id=${Algos.encode(id)}\nfee=$fee\ninputs=$inputs\ndirectives=$directives\nts=$timestamp\nproofs=$defaultProofOpt>"
 
   //todo: Add validation of timestamp without using timeProvider from EncryApp
-  lazy val semanticValidity: ValidationResult = accumulateErrors
+  //74ms
+  lazy val semanticValidity: ValidationResult = time("Transaction.semanticValidity", accumulateErrors
     .demand(fee >= 0, "Negative fee amount")
     .demand(inputs.lengthCompare(inputs.toSet.size) == 0, "Inputs duplication")
     .demand(inputs.lengthCompare(Short.MaxValue) <= 0, "Wrong number of inputs")
     .demand(directives.lengthCompare(Short.MaxValue) <= 0 && directives.nonEmpty, "Wrong number of directives")
     .demand(directives.forall(_.isValid), "Invalid outputs")
     .demand(size <= TestNetConstants.PayloadMaxSize, "Invalid size")
-    .result
+    .result)
 
-  val tpe: Types.Product = Types.EncryTransaction
+  lazy val tpe: Types.Product = time("Transaction.tpe", Types.EncryTransaction)
 
-  override def hashCode(): Int = Ints.fromByteArray(messageToSign.take(4))
+  override def hashCode(): Int = time("Transaction.hashCode", Ints.fromByteArray(messageToSign.take(4)))
 
-  def asVal: PValue = PValue(PObject(Map(
+  def asVal: PValue = time("Transaction.asVal", PValue(PObject(Map(
     "inputs"        -> PValue(inputs.map(_.boxId.toList), Types.PCollection(Types.PCollection.ofByte)),
     "outputs"       -> PValue(newBoxes.map(_.asPrism), Types.PCollection(Types.EncryBox)),
     "messageToSign" -> PValue(messageToSign, Types.PCollection.ofByte)
-  ), tpe), tpe)
+  ), tpe), tpe))
 }
 
 object Transaction {
@@ -121,13 +123,15 @@ object TransactionProtoSerializer extends ProtoTransactionSerializer[Transaction
     }
   }
 
-  override def fromProto(message: TransactionProtoMessage): Try[Transaction] = Try(Transaction(
-    message.fee,
-    message.timestamp,
-    message.inputs.map(element => InputSerializer.parseBytes(element.toByteArray).get),
-    message.directives.map(directive => DirectiveProtoSerializer.fromProto(directive).get),
-    ProofSerializer.parseBytes(message.proof.toByteArray).toOption
-  ))
+  override def fromProto(message: TransactionProtoMessage): Try[Transaction] = {
+    Try(Transaction(
+      message.fee,
+      message.timestamp,
+      message.inputs.map(element => InputSerializer.parseBytes(element.toByteArray).get),
+      message.directives.map(directive => DirectiveProtoSerializer.fromProto(directive).get),
+      time("fromProto.parseBytes", ProofSerializer.parseBytes(message.proof.toByteArray).toOption)//47ms
+    ))
+  }
 }
 
 object TransactionSerializer extends Serializer[Transaction] {

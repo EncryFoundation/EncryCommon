@@ -24,6 +24,16 @@ resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repos
   "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/",
   "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
 
+assemblyMergeStrategy in assembly := {
+  case "logback.xml" => MergeStrategy.first
+  case "module-info.class" => MergeStrategy.discard
+  case "META-INF/MANIFEST.MF" => MergeStrategy.discard
+  case "META-INF/BC1024KE.SF" => MergeStrategy.discard
+  case "META-INF/BC2048KE.SF" => MergeStrategy.discard
+  case PathList("reference.conf") => MergeStrategy.concat
+  case _ => MergeStrategy.first
+}
+
 licenses in ThisBuild := Seq("GNU GPL 3.0" -> url("https://github.com/EncryFoundation/EncryCommon/blob/master/LICENSE"))
 
 homepage in ThisBuild := Some(url("https://github.com/EncryFoundation/EncryCommon"))
@@ -53,3 +63,4 @@ pomExtra in ThisBuild :=
         <name>Gusev Timofey</name>
       </developer>
     </developers>
+
