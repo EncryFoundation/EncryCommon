@@ -32,7 +32,7 @@ case class TransferDirective(address: Address,
 
   override def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox] =
     Seq(AssetBox(EncryProposition.addressLocked(address),
-      Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)), amount, tokenIdOpt))
+      nonceFromDigest(digest ++ Ints.toByteArray(idx)), amount, tokenIdOpt))
 
   override def serializer: Serializer[M] = TransferDirectiveSerializer
 

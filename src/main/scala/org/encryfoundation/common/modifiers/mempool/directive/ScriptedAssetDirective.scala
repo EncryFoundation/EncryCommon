@@ -29,7 +29,7 @@ case class ScriptedAssetDirective(contractHash: ContractHash,
   override lazy val isValid: Boolean = amount > 0
 
   override def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox] =
-    Seq(AssetBox(EncryProposition(contractHash), Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)), amount))
+    Seq(AssetBox(EncryProposition(contractHash), nonceFromDigest(digest ++ Ints.toByteArray(idx)), amount))
 
   override def serializer: Serializer[M] = ScriptedAssetDirectiveSerializer
 

@@ -1,12 +1,19 @@
+import org.apache.ivy.core.module.descriptor.ExcludeRule
+
 name := "encry-common"
-version := "0.9.0"
+version := "0.9.1"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
 val circeVersion = "0.9.3"
 
+val excludeRule = ExclusionRule("ove")
+
+lazy val root = project.in(file(".")).dependsOn(blake2b)
+lazy val blake2b = ProjectRef(uri("git://github.com/alphazero/Blake2b.git#master"), "blake2b")
+
 libraryDependencies ++= Seq(
-  "org.encry"            %% "prism"           % "0.8.5",
+  ("org.encry"            %% "prism"           % "0.8.6").excludeAll(excludeRule),
   "io.circe"             %% "circe-core"      % circeVersion,
   "io.circe"             %% "circe-generic"   % circeVersion,
   "io.circe"             %% "circe-parser"    % circeVersion,

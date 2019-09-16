@@ -9,9 +9,13 @@ import org.apache.commons.lang.ArrayUtils
 import org.encryfoundation.common.modifiers.mempool.transaction.{Transaction, TransactionProtoSerializer, TransactionSerializer}
 import org.encryfoundation.common.modifiers.{ModifierWithDigest, PersistentModifier}
 import org.encryfoundation.common.serialization.Serializer
+import org.encryfoundation.common.utils.Algos.emptyMerkleTreeRoot
 import org.encryfoundation.common.utils.{Algos, TaggedTypes}
-import org.encryfoundation.common.utils.TaggedTypes.{LeafData, ModifierId, ModifierTypeId}
+import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
+import scorex.crypto.authds.{LeafData => ScorexLeaf}
+import scorex.crypto.authds.merkle.MerkleTree
 import scorex.crypto.hash.Digest32
+
 import scala.util.{Success, Try}
 
 case class Payload(override val headerId: ModifierId,
@@ -23,7 +27,7 @@ case class Payload(override val headerId: ModifierId,
 
   override val modifierTypeId: ModifierTypeId = Payload.modifierTypeId
 
-  override lazy val digest: Digest32 = Payload.rootHash(txs.map(_.id))
+  override lazy val digest: Digest32 = rootHash(txs.map(_.id))
 
   override def serializer: Serializer[Payload] = PayloadSerializer
 
@@ -33,9 +37,19 @@ case class Payload(override val headerId: ModifierId,
     s" txsQty=${txs.size}, id = ${Algos.encode(id)})"
 
   override def parentId: ModifierId = null
+
+  def rootHash(ids: Seq[ModifierId]): Digest32 = merkleTreeRoot(ScorexLeaf !@@ ids)
+
+  def merkleTreeRoot(elements: Seq[ScorexLeaf]): Digest32 =
+    if (elements.isEmpty) emptyMerkleTreeRoot else MerkleTree(elements.map(ScorexLeaf @@ _.repr))(this).rootHash
 }
 
 object Payload {
+
+  def rootHash(ids: Seq[ModifierId]): Digest32 = merkleTreeRoot(ScorexLeaf !@@ ids) //for tests only
+
+  def merkleTreeRoot(elements: Seq[ScorexLeaf]): Digest32 =
+    if (elements.isEmpty) emptyMerkleTreeRoot else MerkleTree(elements.map(ScorexLeaf @@ _.repr))(Algos.hash).rootHash
 
   implicit val jsonEncoder: Encoder[Payload] = (p: Payload) => Map(
     "headerId"     -> Algos.encode(p.headerId).asJson,
@@ -51,9 +65,6 @@ object Payload {
   )
 
   val modifierTypeId: ModifierTypeId = ModifierTypeId @@ (102: Byte)
-
-  def rootHash(ids: Seq[ModifierId]): Digest32 = Algos.merkleTreeRoot(LeafData !@@ ids)
-
 }
 
 object PayloadProtoSerializer {

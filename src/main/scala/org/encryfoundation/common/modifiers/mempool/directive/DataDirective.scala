@@ -25,7 +25,7 @@ case class DataDirective(contractHash: ContractHash, data: Array[Byte]) extends 
   override lazy val isValid: Boolean = data.length <= TestNetConstants.MaxDataLength
 
   override def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox] =
-    Seq(DataBox(EncryProposition(contractHash), Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)), data))
+    Seq(DataBox(EncryProposition(contractHash), nonceFromDigest(digest ++ Ints.toByteArray(idx)), data))
 
   override def serializer: Serializer[M] = DataDirectiveSerializer
 
