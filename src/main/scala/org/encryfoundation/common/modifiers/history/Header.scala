@@ -7,12 +7,12 @@ import org.bouncycastle.crypto.digests.Blake2bDigest
 import org.encryfoundation.common.crypto.equihash.{Equihash, EquihashSolution, EquihashSolutionsSerializer}
 import org.encryfoundation.common.modifiers.{ModifierWithDigest, PersistentModifier}
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.TaggedTypes.{ADDigest, Difficulty, ModifierId, ModifierTypeId}
+import org.encryfoundation.common.utils.TaggedTypes.{Difficulty, ModifierId, ModifierTypeId}
 import scorex.crypto.hash.Digest32
 import io.circe.{Decoder, Encoder, HCursor}
 import io.circe.syntax._
-import scala.util.Try
 import Header._
+import scala.util.Try
 import org.encryfoundation.common.utils.constants.TestNetConstants
 import org.encryfoundation.common.utils.Algos
 
@@ -23,7 +23,8 @@ case class Header(version: Byte,
                   height: Int,
                   nonce: Long,
                   difficulty: Difficulty,
-                  equihashSolution: EquihashSolution) extends PersistentModifier {
+                  equihashSolution: EquihashSolution,
+                  stateRoot: Array[Byte]) extends PersistentModifier {
 
   override type M = Header
 
@@ -43,11 +44,11 @@ case class Header(version: Byte,
   def toHeaderProto: HeaderProtoMessage = HeaderProtoSerializer.toProto(this)
 
   def isRelated(mod: PersistentModifier): Boolean = mod match {
-    case t: Payload  => transactionsRoot.sameElements(t.digest)
-    case _           => false
+    case t: Payload => transactionsRoot.sameElements(t.digest)
+    case _ => false
   }
 
-  override def serializer: Serializer[M] = HeaderSerializer
+  override def serializer: Serializer[Header] = HeaderSerializer
 
   override def toString: String = s"Header(id=$encodedId, height=$height, parent=${Algos.encode(parentId)}, " +
     s"version = $version, transactionsRoot = ${Algos.encode(transactionsRoot)}, timestamp = $timestamp, nonce = $nonce," +
@@ -61,27 +62,29 @@ object Header {
   lazy val GenesisParentId: ModifierId = ModifierId @@ Array.fill(TestNetConstants.DigestLength)(0: Byte)
 
   implicit val jsonEncoder: Encoder[Header] = (h: Header) => Map(
-    "id"               -> Algos.encode(h.id).asJson,
-    "version"          -> h.version.asJson,
-    "parentId"         -> Algos.encode(h.parentId).asJson,
-    "payloadId"        -> Algos.encode(h.payloadId).asJson,
-    "txRoot"           -> Algos.encode(h.transactionsRoot).asJson,
-    "nonce"            -> h.nonce.asJson,
-    "timestamp"        -> h.timestamp.asJson,
-    "height"           -> h.height.asJson,
-    "difficulty"       -> h.difficulty.toString.asJson,
-    "equihashSolution" -> h.equihashSolution.asJson
+    "id" -> Algos.encode(h.id).asJson,
+    "version" -> h.version.asJson,
+    "parentId" -> Algos.encode(h.parentId).asJson,
+    "payloadId" -> Algos.encode(h.payloadId).asJson,
+    "txRoot" -> Algos.encode(h.transactionsRoot).asJson,
+    "nonce" -> h.nonce.asJson,
+    "timestamp" -> h.timestamp.asJson,
+    "height" -> h.height.asJson,
+    "difficulty" -> h.difficulty.toString.asJson,
+    "equihashSolution" -> h.equihashSolution.asJson,
+    "stateRoot" -> h.stateRoot.asJson,
   ).asJson
 
   implicit val jsonDecoder: Decoder[Header] = (c: HCursor) => for {
-    version          <- c.downField("version").as[Byte]
-    parentId         <- c.downField("parentId").as[String]
-    txRoot           <- c.downField("txRoot").as[String]
-    timestamp        <- c.downField("timestamp").as[Long]
-    height           <- c.downField("height").as[Int]
-    nonce            <- c.downField("nonce").as[Long]
-    difficulty       <- c.downField("difficulty").as[BigInt]
+    version <- c.downField("version").as[Byte]
+    parentId <- c.downField("parentId").as[String]
+    txRoot <- c.downField("txRoot").as[String]
+    timestamp <- c.downField("timestamp").as[Long]
+    height <- c.downField("height").as[Int]
+    nonce <- c.downField("nonce").as[Long]
+    difficulty <- c.downField("difficulty").as[BigInt]
     equihashSolution <- c.downField("equihashSolution").as[EquihashSolution]
+    stateRoot <- c.downField("stateRoot").as[String]
   } yield Header(
     version,
     ModifierId @@ Algos.decode(parentId).getOrElse(Array.emptyByteArray),
@@ -90,7 +93,8 @@ object Header {
     height,
     nonce,
     Difficulty @@ difficulty,
-    equihashSolution
+    equihashSolution,
+    Algos.decode(stateRoot).getOrElse(Array.emptyByteArray)
   )
 
   def getPowHash(header: Header): Digest32 = {
@@ -123,6 +127,7 @@ object HeaderProtoSerializer {
     .withNonce(header.nonce)
     .withDifficulty(header.difficulty.toLong)
     .withInts(header.equihashSolution.ints)
+    .withStateRoot(ByteString.copyFrom(header.stateRoot))
 
   def fromProto(headerProtoMessage: HeaderProtoMessage): Try[Header] = Try(
     Header(
@@ -133,7 +138,8 @@ object HeaderProtoSerializer {
       headerProtoMessage.height,
       headerProtoMessage.nonce,
       Difficulty @@ BigInt(headerProtoMessage.difficulty),
-      EquihashSolution(headerProtoMessage.ints)
+      EquihashSolution(headerProtoMessage.ints),
+      headerProtoMessage.stateRoot.toByteArray
     )
   )
 }
@@ -148,7 +154,9 @@ object HeaderSerializer extends Serializer[Header] {
       Longs.toByteArray(h.timestamp),
       Ints.toByteArray(h.difficulty.toByteArray.length),
       h.difficulty.toByteArray,
-      Ints.toByteArray(h.height))
+      Ints.toByteArray(h.height),
+      h.stateRoot
+    )
 
   override def toBytes(obj: Header): Array[Byte] =
     Bytes.concat(
@@ -160,7 +168,8 @@ object HeaderSerializer extends Serializer[Header] {
       Longs.toByteArray(obj.nonce),
       Ints.toByteArray(obj.difficulty.toByteArray.length),
       obj.difficulty.toByteArray,
-      obj.equihashSolution.bytes
+      obj.stateRoot,
+      obj.equihashSolution.bytes,
     )
 
   override def parseBytes(bytes: Array[Byte]): Try[Header] = Try {
@@ -172,9 +181,10 @@ object HeaderSerializer extends Serializer[Header] {
     val nonce: Long = Longs.fromByteArray(bytes.slice(77, 85))
     val diificultySize: Int = Ints.fromByteArray(bytes.slice(85, 89))
     val difficulty: Difficulty = Difficulty @@ BigInt(bytes.slice(89, 89 + diificultySize))
-    val equihashSolution: EquihashSolution =
-      EquihashSolutionsSerializer.parseBytes(bytes.slice(89 + diificultySize, bytes.length)).get
+    val stateRoot: Array[Byte] = bytes.slice(89 + diificultySize, 89 + diificultySize + TestNetConstants.stateRootSize)
+    val equihashSolution: EquihashSolution = EquihashSolutionsSerializer
+      .parseBytes(bytes.slice(89 + diificultySize + TestNetConstants.stateRootSize, bytes.length)).get
 
-    Header(version, parentId, txsRoot, timestamp, height, nonce, difficulty, equihashSolution)
+    Header(version, parentId, txsRoot, timestamp, height, nonce, difficulty, equihashSolution, stateRoot)
   }
 }

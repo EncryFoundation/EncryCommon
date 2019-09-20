@@ -15,6 +15,8 @@ trait Constants {
   // Maximum block header size in bytes
   val HeaderMaxSize: Int
 
+  val stateRootSize: Int
+
   val DefaultKeepVersions: Int
 
   val PersistentByteCost: Int

@@ -15,6 +15,8 @@ case object TestNetConstants extends Constants {
 
   val HeaderMaxSize: Int = 200
 
+  val stateRootSize: Int = 32
+
   val DefaultKeepVersions: Int = 200
 
   val PersistentByteCost: Int = 16
