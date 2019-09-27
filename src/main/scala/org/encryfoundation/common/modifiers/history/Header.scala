@@ -72,7 +72,7 @@ object Header {
     "height" -> h.height.asJson,
     "difficulty" -> h.difficulty.toString.asJson,
     "equihashSolution" -> h.equihashSolution.asJson,
-    "stateRoot" -> h.stateRoot.asJson,
+    "stateRoot" -> Algos.encode(h.stateRoot).asJson,
   ).asJson
 
   implicit val jsonDecoder: Decoder[Header] = (c: HCursor) => for {
