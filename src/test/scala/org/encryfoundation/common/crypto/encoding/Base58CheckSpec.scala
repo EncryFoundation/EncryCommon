@@ -1,5 +1,6 @@
 package org.encryfoundation.common.crypto.encoding
 
+import org.encryfoundation.common.utils.Algos
 import org.scalatest.{Matchers, PropSpec}
 import scorex.utils.Random
 
