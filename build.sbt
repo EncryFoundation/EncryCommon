@@ -1,5 +1,5 @@
 name := "encry-common"
-version := "0.9.2"
+version := "0.9.3"
 scalaVersion := "2.12.6"
 organization := "org.encry"
 
@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "io.circe"             %% "circe-core"      % circeVersion,
   "io.circe"             %% "circe-generic"   % circeVersion,
   "io.circe"             %% "circe-parser"    % circeVersion,
-  "org.scalatest"        %% "scalatest"       % "3.0.3"                                 % Test,
+  "org.scalatest"        %% "scalatest"       % "3.0.3" % Test,
   "com.thesamet.scalapb" %% "scalapb-runtime" % scalapb.compiler.Version.scalapbVersion % "protobuf",
   "commons-lang"         % "commons-lang"     % "2.6"
 )
@@ -20,23 +20,25 @@ assemblyJarName in assembly := "EncryCommon.jar"
 test in assembly := {}
 
 assemblyMergeStrategy in assembly := {
-  case "logback.xml" => MergeStrategy.first
-  case "module-info.class" => MergeStrategy.discard
-  case "META-INF/MANIFEST.MF" => MergeStrategy.discard
-  case "META-INF/BC1024KE.SF" => MergeStrategy.discard
-  case "META-INF/BC2048KE.SF" => MergeStrategy.discard
+  case "logback.xml"              => MergeStrategy.first
+  case "module-info.class"        => MergeStrategy.discard
+  case "META-INF/MANIFEST.MF"     => MergeStrategy.discard
+  case "META-INF/BC1024KE.SF"     => MergeStrategy.discard
+  case "META-INF/BC2048KE.SF"     => MergeStrategy.discard
   case PathList("reference.conf") => MergeStrategy.concat
-  case _ => MergeStrategy.first
+  case _                          => MergeStrategy.first
 }
 
 PB.targets in Compile := Seq(
   scalapb.gen() -> (sourceManaged in Compile).value / "protobuf"
 )
 
-resolvers ++= Seq("Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
+resolvers ++= Seq(
+  "Sonatype Releases" at "https://oss.sonatype.org/content/repositories/releases/",
   "SonaType" at "https://oss.sonatype.org/content/groups/public",
   "Typesafe maven releases" at "http://repo.typesafe.com/typesafe/maven-releases/",
-  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/")
+  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+)
 
 licenses in ThisBuild := Seq("GNU GPL 3.0" -> url("https://github.com/EncryFoundation/EncryCommon/blob/master/LICENSE"))
 

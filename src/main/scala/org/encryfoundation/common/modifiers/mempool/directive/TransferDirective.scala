@@ -1,18 +1,18 @@
 package org.encryfoundation.common.modifiers.mempool.directive
 
 import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage
-import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage.{ADKeyProto, TransferDirectiveProtoMessage}
-import com.google.common.primitives.{Bytes, Ints, Longs}
+import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage.{ ADKeyProto, TransferDirectiveProtoMessage }
+import com.google.common.primitives.{ Bytes, Ints, Longs }
 import com.google.protobuf.ByteString
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, HCursor}
+import io.circe.{ Decoder, Encoder, HCursor }
 import org.encryfoundation.common.modifiers.mempool.directive.Directive.DTypeId
 import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress
 import org.encryfoundation.common.modifiers.mempool.transaction.EncryAddress.Address
 import org.encryfoundation.common.modifiers.state.box.Box.Amount
-import org.encryfoundation.common.modifiers.state.box.{AssetBox, EncryBaseBox, EncryProposition}
+import org.encryfoundation.common.modifiers.state.box.{ AssetBox, EncryBaseBox, EncryProposition }
 import org.encryfoundation.common.serialization.Serializer
-import org.encryfoundation.common.utils.{Algos, Utils}
+import org.encryfoundation.common.utils.{ Algos, Utils }
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
 import org.encryfoundation.common.utils.constants.TestNetConstants
 import scorex.crypto.hash.Digest32
@@ -20,9 +20,7 @@ import supertagged.@@
 
 import scala.util.Try
 
-case class TransferDirective(address: Address,
-                             amount: Amount,
-                             tokenIdOpt: Option[ADKey] = None) extends Directive {
+case class TransferDirective(address: Address, amount: Amount, tokenIdOpt: Option[ADKey] = None) extends Directive {
 
   override type M = TransferDirective
 
@@ -31,8 +29,12 @@ case class TransferDirective(address: Address,
   override lazy val isValid: Boolean = amount > 0 && EncryAddress.resolveAddress(address).isSuccess
 
   override def boxes(digest: Digest32, idx: Int): Seq[EncryBaseBox] =
-    Seq(AssetBox(EncryProposition.addressLocked(address),
-      Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)), amount, tokenIdOpt))
+    Seq(
+      AssetBox(EncryProposition.addressLocked(address),
+               Utils.nonceFromDigest(digest ++ Ints.toByteArray(idx)),
+               amount,
+               tokenIdOpt)
+    )
 
   override def serializer: Serializer[M] = TransferDirectiveSerializer
 
@@ -43,18 +45,20 @@ object TransferDirective {
 
   val modifierTypeId: DTypeId = 1: Byte
 
-  implicit val jsonEncoder: Encoder[TransferDirective] = (d: TransferDirective) => Map(
-    "typeId"  -> d.typeId.asJson,
-    "address" -> d.address.toString.asJson,
-    "amount"  -> d.amount.asJson,
-    "tokenId" -> d.tokenIdOpt.map(id => Algos.encode(id)).getOrElse("null").asJson
-  ).asJson
+  implicit val jsonEncoder: Encoder[TransferDirective] = (d: TransferDirective) =>
+    Map(
+      "typeId"  -> d.typeId.asJson,
+      "address" -> d.address.toString.asJson,
+      "amount"  -> d.amount.asJson,
+      "tokenId" -> d.tokenIdOpt.map(id => Algos.encode(id)).getOrElse("null").asJson
+    ).asJson
 
-  implicit val jsonDecoder: Decoder[TransferDirective] = (c: HCursor) => for {
-    address    <- c.downField("address").as[String]
-    amount     <- c.downField("amount").as[Long]
-    tokenIdOpt <- c.downField("tokenId").as[Option[String]]
-  } yield TransferDirective(address, amount, tokenIdOpt.flatMap(id => Algos.decode(id).map(ADKey @@ _).toOption))
+  implicit val jsonDecoder: Decoder[TransferDirective] = (c: HCursor) =>
+    for {
+      address    <- c.downField("address").as[String]
+      amount     <- c.downField("amount").as[Long]
+      tokenIdOpt <- c.downField("tokenId").as[Option[String]]
+    } yield TransferDirective(address, amount, tokenIdOpt.flatMap(id => Algos.decode(id).map(ADKey @@ _).toOption))
 }
 
 object TransferDirectiveProtoSerializer extends ProtoDirectiveSerializer[TransferDirective] {
@@ -65,18 +69,17 @@ object TransferDirectiveProtoSerializer extends ProtoDirectiveSerializer[Transfe
       .withAmount(message.amount)
     val transferDirective: TransferDirectiveProtoMessage = message.tokenIdOpt match {
       case Some(value) => initialDirective.withTokenIdOpt(ADKeyProto().withTokenIdOpt(ByteString.copyFrom(value)))
-      case None => initialDirective
+      case None        => initialDirective
     }
     DirectiveProtoMessage().withTransferDirectiveProto(transferDirective)
   }
 
   override def fromProto(message: DirectiveProtoMessage): Option[TransferDirective] =
     message.directiveProto.transferDirectiveProto match {
-      case Some(value) => Some(TransferDirective(
-        value.address,
-        value.amount,
-        value.tokenIdOpt.map(x => ADKey @@ x.tokenIdOpt.toByteArray))
-      )
+      case Some(value) =>
+        Some(
+          TransferDirective(value.address, value.amount, value.tokenIdOpt.map(x => ADKey @@ x.tokenIdOpt.toByteArray))
+        )
       case None => Option.empty[TransferDirective]
     }
 }
@@ -93,12 +96,13 @@ object TransferDirectiveSerializer extends Serializer[TransferDirective] {
   }
 
   override def parseBytes(bytes: Array[Byte]): Try[TransferDirective] = Try {
-    val addressLen: Int = bytes.head.toInt
+    val addressLen: Int  = bytes.head.toInt
     val address: Address = new String(bytes.slice(1, 1 + addressLen), Algos.charset)
-    val amount: Amount = Longs.fromByteArray(bytes.slice(1 + addressLen, 1 + addressLen + 8))
-    val tokenIdOpt: Option[@@[Array[DTypeId], ADKey.Tag]] = if ((bytes.length - (1 + addressLen + 8)) == TestNetConstants.ModifierIdSize) {
-      Some(ADKey @@ bytes.takeRight(TestNetConstants.ModifierIdSize))
-    } else None
+    val amount: Amount   = Longs.fromByteArray(bytes.slice(1 + addressLen, 1 + addressLen + 8))
+    val tokenIdOpt: Option[@@[Array[DTypeId], ADKey.Tag]] =
+      if ((bytes.length - (1 + addressLen + 8)) == TestNetConstants.ModifierIdSize) {
+        Some(ADKey @@ bytes.takeRight(TestNetConstants.ModifierIdSize))
+      } else None
     TransferDirective(address, amount, tokenIdOpt)
   }
 }

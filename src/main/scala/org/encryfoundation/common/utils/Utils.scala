@@ -1,6 +1,6 @@
 package org.encryfoundation.common.utils
 
-import java.nio.{ByteBuffer, ByteOrder}
+import java.nio.{ ByteBuffer, ByteOrder }
 import com.google.common.primitives.Longs
 import org.bouncycastle.crypto.Digest
 
@@ -24,12 +24,11 @@ object Utils {
     digest
   }
 
-  def countLeadingZeroes(bytes: Array[Byte]): Byte = {
+  def countLeadingZeroes(bytes: Array[Byte]): Byte =
     (0 until byteSize * bytes.length).foldLeft(0.toByte) {
       case (res, i) if (bytes(i / byteSize) << i % byteSize & 0x80) == 0 => (res + 1).toByte
       case (res, _) => return res
     }
-  }
 
   def validateSolution(solution: Array[Byte], target: Double): Boolean = countLeadingZeroes(solution) >= target
 

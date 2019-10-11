@@ -1,7 +1,7 @@
 package org.encryfoundation.common.modifiers.state
 
 import org.encryfoundation.common.modifiers.state.box._
-import scala.util.{Failure, Try}
+import scala.util.{ Failure, Try }
 
 object StateModifierSerializer {
 

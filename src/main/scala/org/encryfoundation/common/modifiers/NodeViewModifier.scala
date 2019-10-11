@@ -2,7 +2,7 @@ package org.encryfoundation.common.modifiers
 
 import org.encryfoundation.common.serialization.BytesSerializable
 import org.encryfoundation.common.utils.Algos
-import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
+import org.encryfoundation.common.utils.TaggedTypes.{ ModifierId, ModifierTypeId }
 
 trait NodeViewModifier extends BytesSerializable {
 

@@ -2,12 +2,12 @@ package org.encryfoundation.common.modifiers.state.box
 
 import BoxesProto.BoxProtoMessage
 import com.google.common.primitives.Longs
-import io.circe.{Decoder, DecodingFailure, Encoder}
+import io.circe.{ Decoder, DecodingFailure, Encoder }
 import org.encryfoundation.common.modifiers.state.box.EncryBox.BxTypeId
 import org.encryfoundation.common.utils.Algos
 import org.encryfoundation.common.utils.TaggedTypes.ADKey
-import org.encryfoundation.prismlang.core.wrapped.{PObject, PValue}
-import org.encryfoundation.prismlang.core.{PConvertible, Types}
+import org.encryfoundation.prismlang.core.wrapped.{ PObject, PValue }
+import org.encryfoundation.prismlang.core.{ PConvertible, Types }
 import scala.util.Try
 
 trait EncryBaseBox extends Box[EncryProposition] with PConvertible {
@@ -53,12 +53,13 @@ object EncryBaseBox {
   implicit val jsonDecoder: Decoder[EncryBaseBox] = {
     Decoder.instance { c =>
       c.downField("type").as[BxTypeId] match {
-        case Right(s) => s match {
-          case AssetBox.`modifierTypeId`        => AssetBox.jsonDecoder(c)
-          case DataBox.`modifierTypeId`         => DataBox.jsonDecoder(c)
-          case TokenIssuingBox.`modifierTypeId` => TokenIssuingBox.jsonDecoder(c)
-          case _ => Left(DecodingFailure("Incorrect directive typeID", c.history))
-        }
+        case Right(s) =>
+          s match {
+            case AssetBox.`modifierTypeId`        => AssetBox.jsonDecoder(c)
+            case DataBox.`modifierTypeId`         => DataBox.jsonDecoder(c)
+            case TokenIssuingBox.`modifierTypeId` => TokenIssuingBox.jsonDecoder(c)
+            case _                                => Left(DecodingFailure("Incorrect directive typeID", c.history))
+          }
         case Left(_) => Left(DecodingFailure("None typeId", c.history))
       }
     }

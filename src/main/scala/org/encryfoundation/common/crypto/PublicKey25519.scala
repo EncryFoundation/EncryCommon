@@ -1,15 +1,15 @@
 package org.encryfoundation.common.crypto
 
 import org.encryfoundation.common.modifiers.mempool.transaction.Pay2PubKeyAddress
-import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
+import org.encryfoundation.common.serialization.{ BytesSerializable, Serializer }
 import org.encryfoundation.common.utils.Algos
-import scorex.crypto.signatures.{Curve25519, PublicKey}
+import scorex.crypto.signatures.{ Curve25519, PublicKey }
 import scala.util.Try
 
 case class PublicKey25519(pubKeyBytes: PublicKey) extends BytesSerializable {
 
   require(pubKeyBytes.length == Curve25519.KeyLength,
-    s"Incorrect pubKey length, ${Curve25519.KeyLength} expected, ${pubKeyBytes.length} given")
+          s"Incorrect pubKey length, ${Curve25519.KeyLength} expected, ${pubKeyBytes.length} given")
 
   override type M = PublicKey25519
 
@@ -19,7 +19,7 @@ case class PublicKey25519(pubKeyBytes: PublicKey) extends BytesSerializable {
 
   override def equals(obj: scala.Any): Boolean = obj match {
     case p: PublicKey25519 => p.pubKeyBytes sameElements pubKeyBytes
-    case _ => false
+    case _                 => false
   }
 
   override def hashCode: Int = (BigInt(pubKeyBytes) % Int.MaxValue).toInt

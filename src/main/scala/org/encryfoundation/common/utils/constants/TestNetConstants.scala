@@ -1,7 +1,7 @@
 package org.encryfoundation.common.utils.constants
 
 import org.encryfoundation.common.utils.Algos
-import org.encryfoundation.common.utils.TaggedTypes.{ADKey, Difficulty, Height}
+import org.encryfoundation.common.utils.TaggedTypes.{ ADKey, Difficulty, Height }
 import scala.concurrent.duration._
 import scala.concurrent.duration.FiniteDuration
 

@@ -13,4 +13,3 @@ trait Box[P <: Proposition] extends BytesSerializable {
 object Box {
   type Amount = Long
 }
-

@@ -2,8 +2,8 @@ package org.encryfoundation.common.crypto.equihash
 
 import java.util
 import com.google.common.primitives.Ints
-import io.circe.{Decoder, Encoder, HCursor}
-import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
+import io.circe.{ Decoder, Encoder, HCursor }
+import org.encryfoundation.common.serialization.{ BytesSerializable, Serializer }
 import org.encryfoundation.common.utils.constants.TestNetConstants
 import scala.util.Try
 
@@ -34,8 +34,8 @@ object EquihashSolutionsSerializer extends Serializer[EquihashSolution] {
   override def toBytes(obj: EquihashSolution): Array[Byte] = obj.ints.map(Ints.toByteArray).reduceLeft(_ ++ _)
 
   override def parseBytes(bytes: Array[Byte]): Try[EquihashSolution] = Try {
-    val seq = for { i <- bytes.indices by Ints.BYTES }
-              yield Ints.fromByteArray(util.Arrays.copyOfRange(bytes, i, i + Ints.BYTES))
+    val seq = for { i <- bytes.indices by Ints.BYTES } yield
+      Ints.fromByteArray(util.Arrays.copyOfRange(bytes, i, i + Ints.BYTES))
     EquihashSolution(seq)
   }
 }
