@@ -126,7 +126,9 @@ object BasicMessagesRepo extends StrictLogging {
           case InnerMessage.HandshakeProtoMessage(_) =>
             checkMessageValidity(HandshakeSerializer.fromProto, netMessage.innerMessage, netMessage.checksum)
           case InnerMessage.RequestManifestProtoMessage(_) =>
-            checkMessageValidity(RequestManifest.fromProto, netMessage.innerMessage, netMessage.checksum)
+            checkMessageValidity(RequestManifestMessageSerializer.fromProto,
+                                 netMessage.innerMessage,
+                                 netMessage.checksum)
           case InnerMessage.ResponseManifestProtoMessage(_) =>
             checkMessageValidity(ResponseManifestMessageSerializer.fromProto,
                                  netMessage.innerMessage,
@@ -359,25 +361,6 @@ object BasicMessagesRepo extends StrictLogging {
       }
   }
 
-  case object RequestManifest extends NetworkMessage {
-    override val messageName: String        = "RequestManifest message"
-    override val NetworkMessageTypeID: Byte = 95: Byte
-
-    override def checkSumBytes(innerMessage: InnerMessage): Array[Byte] =
-      innerMessage.requestManifestProtoMessage.map(_.toByteArray).getOrElse(Array.emptyByteArray)
-
-    override def toInnerMessage: InnerMessage = toProto
-
-    override def isValid(syncPacketLength: Int): Boolean = true
-
-    def toProto: InnerMessage = RequestManifestProtoMessage(RequestMPM())
-
-    def fromProto(message: InnerMessage): Option[RequestManifest.type] = message.requestManifestProtoMessage match {
-      case Some(_) => Some(RequestManifest)
-      case None    => Option.empty[RequestManifest.type]
-    }
-  }
-
   /**
    * This network message sends to a random peer as a request for receiver's known peers.
    */
@@ -402,6 +385,40 @@ object BasicMessagesRepo extends StrictLogging {
     override def isValid(syncPacketLength: Int): Boolean = true
   }
 
+  /**
+   * With this message peer requests required manifest
+   * @param requiredManifestId - required manifest's id
+   */
+  final case class RequestManifestMessage(requiredManifestId: Array[Byte]) extends NetworkMessage {
+    override val messageName: String        = "RequestManifest message"
+    override val NetworkMessageTypeID: Byte = RequestManifestMessage.NetworkMessageTypeID
+
+    override def checkSumBytes(innerMessage: InnerMessage): Array[Byte] =
+      innerMessage.requestManifestProtoMessage.map(_.toByteArray).getOrElse(Array.emptyByteArray)
+
+    override def toInnerMessage: InnerMessage = RequestManifestMessageSerializer.toProto(this)
+
+    override def isValid(syncPacketLength: Int): Boolean = true
+  }
+
+  object RequestManifestMessage {
+    val NetworkMessageTypeID: Byte = 95: Byte
+  }
+
+  object RequestManifestMessageSerializer extends ProtoNetworkMessagesSerializer[RequestManifestMessage] {
+    def toProto(message: RequestManifestMessage): InnerMessage =
+      RequestManifestProtoMessage(RequestMPM().withManifestId(GoogleByteString.copyFrom(message.requiredManifestId)))
+
+    def fromProto(message: InnerMessage): Option[RequestManifestMessage] = message.requestManifestProtoMessage match {
+      case Some(value) => Some(RequestManifestMessage(value.manifestId.toByteArray))
+      case None        => Option.empty[RequestManifestMessage]
+    }
+  }
+
+  /**
+   * This message is sent as a response for a manifest message
+   * @param byteString - serialized manifest presentation
+   */
   final case class ResponseManifestMessage(byteString: SnapshotManifestProtoMessage) extends NetworkMessage {
     override val messageName: String        = "ResponseManifestProtoMessage"
     override val NetworkMessageTypeID: Byte = ResponseManifestMessage.NetworkMessageTypeID
@@ -429,7 +446,11 @@ object BasicMessagesRepo extends StrictLogging {
       }
   }
 
-  final case class RequestChunkMessage(chunkId: Array[Byte], manifestId: Array[Byte]) extends NetworkMessage {
+  /**
+   * Using this message peer requests required chunk
+   * @param chunkId - required chunk id
+   */
+  final case class RequestChunkMessage(chunkId: Array[Byte]) extends NetworkMessage {
     override val messageName: String        = "RequestChunkMessage"
     override val NetworkMessageTypeID: Byte = RequestChunkMessage.NetworkMessageTypeID
 
@@ -447,14 +468,12 @@ object BasicMessagesRepo extends StrictLogging {
 
   object RequestChunkMessageSerializer extends ProtoNetworkMessagesSerializer[RequestChunkMessage] {
     override def toProto(message: RequestChunkMessage): InnerMessage = RequestChunkProtoMessage(
-      requestCPM()
-        .withChunkId(GoogleByteString.copyFrom(message.chunkId))
-        .withManifestId(GoogleByteString.copyFrom(message.manifestId))
+      requestCPM().withChunkId(GoogleByteString.copyFrom(message.chunkId))
     )
 
     override def fromProto(message: InnerMessage): Option[RequestChunkMessage] =
       message.requestChunkProtoMessage match {
-        case Some(value) => Some(RequestChunkMessage(value.chunkId.toByteArray, value.manifestId.toByteArray))
+        case Some(value) => Some(RequestChunkMessage(value.chunkId.toByteArray))
         case None        => Option.empty
       }
   }
