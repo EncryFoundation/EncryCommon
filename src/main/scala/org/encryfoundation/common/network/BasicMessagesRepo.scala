@@ -8,7 +8,6 @@ import NetworkMessagesProto.GeneralizedNetworkProtoMessage.{
   GetPeersProtoMessage => GetPeersProto,
   HandshakeProtoMessage => hPM,
   InvProtoMessage => InvPM,
-  ManifestHasChangedProtoMessage => changedMPM,
   ModifiersProtoMessage => ModifiersPM,
   PeersProtoMessage => PeersPM,
   RequestChunkProtoMessage => requestCPM,
@@ -22,7 +21,6 @@ import NetworkMessagesProto.GeneralizedNetworkProtoMessage.InnerMessage.{
   GetPeersProtoMessage,
   HandshakeProtoMessage,
   InvProtoMessage,
-  ManifestHasChangedProtoMessage,
   ModifiersProtoMessage,
   PeersProtoMessage,
   RequestChunkProtoMessage,
@@ -137,8 +135,6 @@ object BasicMessagesRepo extends StrictLogging {
             checkMessageValidity(RequestChunkMessageSerializer.fromProto, netMessage.innerMessage, netMessage.checksum)
           case InnerMessage.ResponseChunkProtoMessage(_) =>
             checkMessageValidity(ResponseChunkMessageSerializer.fromProto, netMessage.innerMessage, netMessage.checksum)
-          case InnerMessage.ManifestHasChangedProtoMessage(_) =>
-            checkMessageValidity(ManifestHasChangedSerializer.fromProto, netMessage.innerMessage, netMessage.checksum)
           case InnerMessage.Empty => throw new RuntimeException("Empty inner message!")
           case _                  => throw new RuntimeException("Can't find serializer for received message!")
         }
@@ -503,38 +499,6 @@ object BasicMessagesRepo extends StrictLogging {
       message.responseChunkProtoMessage match {
         case Some(value) => Some(ResponseChunkMessage(value.chunk.get))
         case None        => Option.empty
-      }
-  }
-
-  final case class ManifestHasChanged(requestedManifestId: Array[Byte], byteString: SnapshotManifestProtoMessage)
-      extends NetworkMessage {
-    override val messageName: String        = "ManifestHasChanged"
-    override val NetworkMessageTypeID: Byte = ManifestHasChanged.NetworkMessageTypeID
-
-    override def checkSumBytes(innerMessage: InnerMessage): Array[Byte] =
-      innerMessage.manifestHasChangedProtoMessage.map(_.toByteArray).getOrElse(Array.emptyByteArray)
-
-    override def toInnerMessage: InnerMessage = ManifestHasChangedSerializer.toProto(this)
-
-    override def isValid(syncPacketLength: Int): Boolean = true
-  }
-
-  object ManifestHasChanged {
-    val NetworkMessageTypeID: Byte = 99: Byte
-  }
-
-  object ManifestHasChangedSerializer extends ProtoNetworkMessagesSerializer[ManifestHasChanged] {
-    override def toProto(message: ManifestHasChanged): InnerMessage = ManifestHasChangedProtoMessage(
-      changedMPM()
-        .withSnapshotManifestProtoMessage(message.byteString)
-        .withRequestedManifestId(GoogleByteString.copyFrom(message.requestedManifestId))
-    )
-
-    override def fromProto(message: InnerMessage): Option[ManifestHasChanged] =
-      message.manifestHasChangedProtoMessage match {
-        case Some(value) =>
-          Some(ManifestHasChanged(value.requestedManifestId.toByteArray, value.snapshotManifestProtoMessage.get))
-        case None => Option.empty
       }
   }
 
