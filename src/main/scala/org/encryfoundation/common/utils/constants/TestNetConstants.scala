@@ -1,7 +1,7 @@
 package org.encryfoundation.common.utils.constants
 
 import org.encryfoundation.common.utils.Algos
-import org.encryfoundation.common.utils.TaggedTypes.{ADKey, Difficulty, Height}
+import org.encryfoundation.common.utils.TaggedTypes.{ ADKey, Difficulty, Height }
 import scala.concurrent.duration._
 import scala.concurrent.duration.FiniteDuration
 
@@ -14,6 +14,8 @@ case object TestNetConstants extends Constants {
   val PayloadMaxSize: Int = 1000000
 
   val HeaderMaxSize: Int = 200
+
+  val stateRootSize: Int = 32
 
   val DefaultKeepVersions: Int = 200
 

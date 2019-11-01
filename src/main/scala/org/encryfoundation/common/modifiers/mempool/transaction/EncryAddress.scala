@@ -25,7 +25,7 @@ object EncryAddress {
   case object InvalidAddressException extends Exception("Invalid address")
 
   def resolveAddress(address: Address): Try[EncryAddress] = Base58Check.decode(address).map {
-    case bytes if bytes.head == Pay2PubKeyAddress.TypePrefix => Pay2PubKeyAddress(address)
+    case bytes if bytes.head == Pay2PubKeyAddress.TypePrefix       => Pay2PubKeyAddress(address)
     case bytes if bytes.head == Pay2ContractHashAddress.TypePrefix => Pay2ContractHashAddress(address)
   }
 }
@@ -44,7 +44,8 @@ object Pay2PubKeyAddress {
 
   val TypePrefix: Byte = 0x02
 
-  def apply(publicKey: PublicKey): Pay2PubKeyAddress = new Pay2PubKeyAddress(Base58Check.encode(TypePrefix +: publicKey))
+  def apply(publicKey: PublicKey): Pay2PubKeyAddress =
+    new Pay2PubKeyAddress(Base58Check.encode(TypePrefix +: publicKey))
 
   def extractPubKey(address: Address): Try[PublicKey] = Base58Check.decode(address).map(PublicKey @@ _.tail)
 }

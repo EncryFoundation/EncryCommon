@@ -1,6 +1,6 @@
 package org.encryfoundation.common.utils.constants
 
-import org.encryfoundation.common.utils.TaggedTypes.{ADKey, Difficulty, Height}
+import org.encryfoundation.common.utils.TaggedTypes.{ ADKey, Difficulty, Height }
 import scala.concurrent.duration.FiniteDuration
 
 trait Constants {
@@ -14,6 +14,8 @@ trait Constants {
 
   // Maximum block header size in bytes
   val HeaderMaxSize: Int
+
+  val stateRootSize: Int
 
   val DefaultKeepVersions: Int
 

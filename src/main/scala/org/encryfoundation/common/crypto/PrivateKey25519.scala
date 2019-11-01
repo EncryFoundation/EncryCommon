@@ -1,8 +1,8 @@
 package org.encryfoundation.common.crypto
 
 import com.google.common.primitives.Bytes
-import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
-import scorex.crypto.signatures.{Curve25519, PrivateKey, PublicKey}
+import org.encryfoundation.common.serialization.{ BytesSerializable, Serializer }
+import scorex.crypto.signatures.{ Curve25519, PrivateKey, PublicKey }
 import scala.util.Try
 
 trait SecretWrapper extends BytesSerializable
@@ -36,7 +36,7 @@ object PrivateKey25519 {
     Curve25519.verify(proof.signature, message, publicImage.pubKeyBytes)
 
   def generateKeys(randomSeed: Array[Byte]): (PrivateKey25519, PublicKey25519) = {
-    val pair = Curve25519.createKeyPair(randomSeed)
+    val pair                    = Curve25519.createKeyPair(randomSeed)
     val secret: PrivateKey25519 = PrivateKey25519(pair._1, pair._2)
     secret -> secret.publicImage
   }

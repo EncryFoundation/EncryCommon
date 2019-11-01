@@ -4,24 +4,24 @@ import com.google.common.primitives.Ints
 import org.encryfoundation.common.crypto.PublicKey25519
 import org.encryfoundation.common.serialization.SerializationException
 import org.encryfoundation.prismlang.compiler.CompiledContract
-import org.encryfoundation.prismlang.core.Ast.{Expr, Ident}
-import org.encryfoundation.prismlang.core.{Ast, Types}
+import org.encryfoundation.prismlang.core.Ast.{ Expr, Ident }
+import org.encryfoundation.prismlang.core.{ Ast, Types }
 import org.encryfoundation.prismlang.lib.predefined.signature.CheckSig
 import scorex.crypto.encode.Base16
 import scorex.crypto.signatures.PublicKey
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 sealed trait RegularContract {
   val typeId: Byte
   def contract: CompiledContract
-  def bytes: Array[Byte] = RegularContract.Serializer.toBytes(this)
+  def bytes: Array[Byte]      = RegularContract.Serializer.toBytes(this)
   def contractHashHex: String = Base16.encode(contract.hash)
 }
 object RegularContract {
   object Serializer {
     def toBytes(obj: RegularContract): Array[Byte] = obj match {
-      case OpenContract => Array(OpenContract.typeId)
-      case HeightLockedContract(h) => HeightLockedContract.TypeId +: Ints.toByteArray(h)
+      case OpenContract             => Array(OpenContract.typeId)
+      case HeightLockedContract(h)  => HeightLockedContract.TypeId +: Ints.toByteArray(h)
       case PubKeyLockedContract(pk) => PubKeyLockedContract.TypeId +: pk
     }
     def parseBytes(bytes: Array[Byte]): Try[RegularContract] = bytes.head match {
@@ -37,7 +37,7 @@ object RegularContract {
 }
 
 case object OpenContract extends RegularContract {
-  val typeId: Byte = 0
+  val typeId: Byte               = 0
   val contract: CompiledContract = CompiledContract(List.empty, Ast.Expr.True)
 }
 

@@ -1,8 +1,8 @@
 package org.encryfoundation.common.validation
 
-import io.circe.{ACursor, Decoder, DecodingFailure}
+import io.circe.{ ACursor, Decoder, DecodingFailure }
 import scala.concurrent.Future
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 sealed trait ValidationResult {
 
@@ -21,7 +21,7 @@ sealed trait ValidationResult {
   def toFuture: Future[Unit] = Future.fromTry(toTry)
 
   def toDecoderResult[T](value: T)(implicit cursor: ACursor): Decoder.Result[T] = this match {
-    case Valid => Right(value)
+    case Valid      => Right(value)
     case Invalid(_) => Left(DecodingFailure(message, cursor.history))
   }
 
@@ -53,12 +53,13 @@ object ValidationResult {
     def message: String = "Validation errors: " + errors.mkString(" | ")
 
     def ++(next: ValidationResult): ValidationResult = next match {
-      case Valid => this
+      case Valid       => this
       case Invalid(e2) => Invalid(errors ++ e2)
     }
 
     @SuppressWarnings(Array("org.wartremover.warts.TraversableOps"))
-    lazy val toTry: Try[Unit] = if (errors.size == 1) Failure(errors.head.toThrowable) else Failure(MultipleErrors(errors))
+    lazy val toTry: Try[Unit] =
+      if (errors.size == 1) Failure(errors.head.toThrowable) else Failure(MultipleErrors(errors))
   }
 
 }

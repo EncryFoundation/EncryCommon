@@ -3,7 +3,7 @@ package org.encryfoundation.common.modifiers.mempool.directive
 import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage
 import TransactionProto.TransactionProtoMessage.DirectiveProtoMessage.DirectiveProto
 import org.encryfoundation.common.serialization.Serializer
-import scala.util.{Failure, Try}
+import scala.util.{ Failure, Try }
 
 trait ProtoDirectiveSerializer[T] {
 
@@ -26,11 +26,13 @@ object DirectiveProtoSerializer {
 object DirectiveSerializer extends Serializer[Directive] {
 
   override def toBytes(obj: Directive): Array[Byte] = obj match {
-    case td: TransferDirective       => TransferDirective.modifierTypeId +: TransferDirectiveSerializer.toBytes(td)
-    case aid: AssetIssuingDirective  => AssetIssuingDirective.modifierTypeId +: AssetIssuingDirectiveSerializer.toBytes(aid)
-    case sad: ScriptedAssetDirective => ScriptedAssetDirective.modifierTypeId +: ScriptedAssetDirectiveSerializer.toBytes(sad)
-    case dd: DataDirective           => DataDirective.modifierTypeId +: DataDirectiveSerializer.toBytes(dd)
-    case m                           => throw new Exception(s"Serialization of unknown directive type: $m")
+    case td: TransferDirective => TransferDirective.modifierTypeId +: TransferDirectiveSerializer.toBytes(td)
+    case aid: AssetIssuingDirective =>
+      AssetIssuingDirective.modifierTypeId +: AssetIssuingDirectiveSerializer.toBytes(aid)
+    case sad: ScriptedAssetDirective =>
+      ScriptedAssetDirective.modifierTypeId +: ScriptedAssetDirectiveSerializer.toBytes(sad)
+    case dd: DataDirective => DataDirective.modifierTypeId +: DataDirectiveSerializer.toBytes(dd)
+    case m                 => throw new Exception(s"Serialization of unknown directive type: $m")
   }
 
   override def parseBytes(bytes: Array[Byte]): Try[Directive] = Try(bytes.head).flatMap {

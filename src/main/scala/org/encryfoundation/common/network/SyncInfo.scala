@@ -1,7 +1,7 @@
 package org.encryfoundation.common.network
 
 import org.encryfoundation.common.modifiers.history.Header
-import org.encryfoundation.common.utils.TaggedTypes.{ModifierId, ModifierTypeId}
+import org.encryfoundation.common.utils.TaggedTypes.{ ModifierId, ModifierTypeId }
 
 case class SyncInfo(lastHeaderIds: Seq[ModifierId]) {
 

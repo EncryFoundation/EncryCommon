@@ -15,7 +15,7 @@ case class Insertion(box: EncryBaseBox) extends EncryBoxStateChangeOperation {
   override def toString: String = s"Insertion(id: ${Algos.encode(box.id)})"
 }
 
-case class EncryBoxStateChanges(operations: Seq[EncryBoxStateChangeOperation]){
+case class EncryBoxStateChanges(operations: Seq[EncryBoxStateChangeOperation]) {
 
   def toAppend: Seq[EncryBoxStateChangeOperation] = operations.filter(_.isInstanceOf[Insertion])
 

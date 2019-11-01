@@ -4,11 +4,11 @@ import java.util
 import scorex.crypto.encode.Base58
 import scorex.crypto.hash.Blake2b256
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object Base58Check {
 
-  val Version: Byte = 1
+  val Version: Byte       = 1
   val ChecksumLength: Int = 4
 
   private def getChecksum(bytes: Array[Byte]): Array[Byte] =
@@ -17,7 +17,7 @@ object Base58Check {
   def encode(input: Array[Byte]): String = Base58.encode((Version +: input) ++ getChecksum(input))
 
   def decode(input: String): Try[Array[Byte]] = Base58.decode(input).flatMap { bytes =>
-    val checksum: Array[Byte] = util.Arrays.copyOfRange(bytes, bytes.length - ChecksumLength, bytes.length)
+    val checksum: Array[Byte]       = util.Arrays.copyOfRange(bytes, bytes.length - ChecksumLength, bytes.length)
     val checksumActual: Array[Byte] = getChecksum(util.Arrays.copyOfRange(bytes, 1, bytes.length - ChecksumLength))
 
     if (checksum.sameElements(checksumActual)) Success(util.Arrays.copyOfRange(bytes, 1, bytes.length - ChecksumLength))

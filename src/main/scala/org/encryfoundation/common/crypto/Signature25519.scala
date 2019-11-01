@@ -1,10 +1,10 @@
 package org.encryfoundation.common.crypto
 
-import org.encryfoundation.common.serialization.{BytesSerializable, Serializer}
+import org.encryfoundation.common.serialization.{ BytesSerializable, Serializer }
 import io.circe.syntax._
-import io.circe.{Decoder, Encoder, HCursor}
+import io.circe.{ Decoder, Encoder, HCursor }
 import org.encryfoundation.common.utils.Algos
-import scorex.crypto.signatures.{Curve25519, Signature}
+import scorex.crypto.signatures.{ Curve25519, Signature }
 import scala.util.Try
 
 case class Signature25519(signature: Signature) extends BytesSerializable {
@@ -22,9 +22,10 @@ object Signature25519 {
 
   lazy val SignatureSize: Int = Curve25519.SignatureLength
 
-  implicit val jsonEncoder: Encoder[Signature25519] = (p: Signature25519) => Map(
-    "signature" -> Algos.encode(p.signature).asJson
-  ).asJson
+  implicit val jsonEncoder: Encoder[Signature25519] = (p: Signature25519) =>
+    Map(
+      "signature" -> Algos.encode(p.signature).asJson
+    ).asJson
 
   implicit val jsonDecoder: Decoder[Signature25519] =
     (c: HCursor) => {

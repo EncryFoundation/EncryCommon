@@ -4,16 +4,16 @@ import supertagged.TaggedType
 
 object TaggedTypes {
 
-  type LeafData          = LeafData.Type
-  type Side              = Side.Type
-  type ADKey             = ADKey.Type
-  type ADValue           = ADValue.Type
-  type ADDigest          = ADDigest.Type
-  type Balance           = Balance.Type
-  type ModifierTypeId    = ModifierTypeId.Type
-  type ModifierId        = ModifierId.Type
-  type Difficulty        = Difficulty.Type
-  type Height            = Height.Type
+  type LeafData       = LeafData.Type
+  type Side           = Side.Type
+  type ADKey          = ADKey.Type
+  type ADValue        = ADValue.Type
+  type ADDigest       = ADDigest.Type
+  type Balance        = Balance.Type
+  type ModifierTypeId = ModifierTypeId.Type
+  type ModifierId     = ModifierId.Type
+  type Difficulty     = Difficulty.Type
+  type Height         = Height.Type
 
   object LeafData extends TaggedType[Array[Byte]]
 
