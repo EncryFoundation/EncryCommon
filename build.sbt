@@ -46,6 +46,10 @@ homepage in ThisBuild := Some(url("https://github.com/EncryFoundation/EncryCommo
 
 publishMavenStyle in ThisBuild := true
 
+publishConfiguration := publishConfiguration.value.withOverwrite(true)
+
+publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
+
 publishArtifact in Test := false
 
 publishTo in ThisBuild := Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging)
