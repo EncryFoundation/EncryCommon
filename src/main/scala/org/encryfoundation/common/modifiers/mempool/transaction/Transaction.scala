@@ -62,7 +62,6 @@ case class Transaction(fee: Amount,
     .demand(inputs.lengthCompare(Short.MaxValue) <= 0, "Wrong number of inputs")
     .demand(directives.lengthCompare(Short.MaxValue) <= 0 && directives.nonEmpty, "Wrong number of directives")
     .demand(directives.forall(_.isValid), "Invalid outputs")
-    .demand(size <= TestNetConstants.PayloadMaxSize, "Invalid size")
     .result
 
   val tpe: Types.Product = Types.EncryTransaction
