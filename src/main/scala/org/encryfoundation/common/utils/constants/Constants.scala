@@ -64,6 +64,8 @@ trait Constants {
   // Maximum number of epochs blockchain state can be rolled back
   val MaxRollbackDepth: Int
 
+  val SnapshotCreationHeight: Int
+
   // Maximum delta any timestamp can differ from current estimated time
   val MaxTimeDrift: Long
 
